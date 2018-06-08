@@ -1,0 +1,241 @@
+{\rtf1\ansi\ansicpg1252\cocoartf1504\cocoasubrtf830
+\cocoascreenfonts1{\fonttbl\f0\fswiss\fcharset0 Helvetica;}
+{\colortbl;\red255\green255\blue255;\red0\green0\blue0;}
+{\*\expandedcolortbl;;\cssrgb\c0\c0\c0;}
+{\*\listtable{\list\listtemplateid1\listhybrid{\listlevel\levelnfc4\levelnfcn4\leveljc0\leveljcn0\levelfollow0\levelstartat1\levelspace360\levelindent0{\*\levelmarker \{lower-alpha\})}{\leveltext\leveltemplateid1\'02\'00);}{\levelnumbers\'01;}\fi-360\li720\lin720 }{\listname ;}\listid1}
+{\list\listtemplateid2\listhybrid{\listlevel\levelnfc4\levelnfcn4\leveljc0\leveljcn0\levelfollow0\levelstartat1\levelspace360\levelindent0{\*\levelmarker \{lower-alpha\})}{\leveltext\leveltemplateid101\'02\'00);}{\levelnumbers\'01;}\fi-360\li720\lin720 }{\listname ;}\listid2}}
+{\*\listoverridetable{\listoverride\listid1\listoverridecount0\ls1}{\listoverride\listid2\listoverridecount0\ls2}}
+\paperw11905\paperh16837\margl1440\margr1440\vieww17380\viewh8940\viewkind0
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+
+\f0\b\fs24 \cf0 \ul \ulc0 Metadata for Lotterhos and Whitlock: 
+\b0 \ulnone  Sampling design and demographic history affect the relative power of outlier tests and genetic-environment associations to detect genes responsible for local adaptation \
+\
+Sept 2, 2014\
+\
+This 
+\fs26 document describes the files included in the Dryad repository for this paper.\
+
+\b \ul \
+I. Folder: SimFilesLFMM\
+\
+
+\b0 \ulnone 1) Contains all the datasets in LFMM format.\
+	*.lfmm is the format that can be used to run the dataset in LFMM\
+	*.env is the environment file\
+\
+2) File nomenclature\
+	Example:\
+	1R_P30_1351142954_453_1_NumPops=30_NumInd=20\
+	(Demography)_(SamplingDesign)_#########_###_#_NumPops=(NumberPopulations)_NumInd=(NumberIndvidiualsSampledPerPopulation)\
+	\
+	a) Demography is IM (Island Model), IBD (Isolation By Distance), 1R (One refuge), 2R (Two refugia)\
+	b) SamplingDesign is P (Pairs), R (Random), or T (Transect)\
+	c) #########_###_# is an identifier for the generated environment and an identifier\
+	d) NumberPopulations is the number of locations sampled on the landscape\
+	e) NumberIndividualsSampledPerPopulation (self-explanatory)\
+\
+
+\b \ul II. Folder: SummaryFiles\
+\
+
+\b0 \ulnone 1) Contains summary statistics for each locus in each dataset from Bayenv2, LFMM, and PCAdapt\
+\
+2) File Nomenclature is same as described above\
+\
+3) File Header\
+\pard\tx220\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\li720\fi-720\pardirnatural\partightenfactor0
+\ls1\ilvl0\cf0 {\listtext	a)	}"SNPnames" randomly generated name for that SNP\
+{\listtext	b)	}"LA.All" a summary statistic calculated by the authors not used in the paper\
+{\listtext	c)	}"Corr.All" the correlation between allele frequency and the landscape for all 360 x 360 demes\
+{\listtext	d)	}"FST.All" Fst for the entire landscape\
+{\listtext	e)	}"s_high" The landscape-level selection coefficient (sL in the paper)\
+{\listtext	f)	}"ENVI_ID" The ID of the environment to which selected loci adapted.  (NA for neutral loci) \
+{\listtext	g)	}"demog" Demography (4 levels) \
+{\listtext	h)	}"Set" an indicator used by the authors \
+{\listtext	i)	}"p.end" mean allele frequency of the landscape at the end of the simulation\
+{\listtext	j)	}"SNPIncluded" not used in analysis\
+{\listtext	k)	}"filename" corresponds to file nomenclature as described above\
+{\listtext	l)	}"He.LS" Heterozygosity of the landscape\
+{\listtext	m)	}"He_samp" Heterozygosity of the sample\
+{\listtext	n)	}"UseSNP" logical indicating whether or not to use the SNP in analysis (SNPs with low He were not included)\
+{\listtext	o)	}"log.bf" Log Bayes Factor from Bayenv2\
+{\listtext	p)	}"rho" Rho from Bayenv2 \
+{\listtext	q)	}"xtx" XTX from Bayenv2 \
+{\listtext	r)	}"SNP.LA2" a summary statistic calculated by the authors not used in the paper\
+{\listtext	s)	}"cols" color indicator for plotting\
+{\listtext	t)	}"pch1" points indicator for plotting\
+{\listtext	u)	}"IsNeut" logical indicator for whether or not it is a neutral locus\
+{\listtext	v)	}"xtx.999perc" the value of the 99.9% on the neutral XTX distribution (not used for analysis)\
+{\listtext	w)	}"bf.999perc" the value of the 99.9% on the neutral BF distribution (not used for analysis)\
+{\listtext	x)	} "rho.999perc" the value of the 99.9% on the neutral rho distribution (not used for analysis)\
+{\listtext	y)	}"xtx.empP" the empirical p-value based on known neutral loci\
+{\listtext	z)	}"bf.empP"  the empirical p-value based on known neutral loci\
+{\listtext	a)	}"rho.empP"  the empirical p-value based on known neutral loci\
+{\listtext	b)	}"xtx.q" the qvalue based on the empirical p-value\
+{\listtext	c)	}"bf.q"  the qvalue based on the empirical p-value\
+{\listtext	d)	}"rho.q" the qvalue based on the empirical p-value\
+{\listtext	e)	}"xtx.FDR01" a logical indicating whether the SNP was significant at a False Discovery Rate of 1/100 (q < 0.01)\
+{\listtext	f)	}"bf.FDR01" a logical indicating whether the SNP was significant at a False Discovery Rate of 1/100 (q < 0.01)\
+{\listtext	g)	}"rho.FDR01" a logical indicating whether the SNP was significant at a False Discovery Rate of 1/100 (q < 0.01)\
+{\listtext	h)	}"TW.Zscore" the Z-score from LFMM based on K = estimate from Tracy-Widom test\
+{\listtext	i)	}"TW.MinusLogP" the minus-log-P-value from LFMM based on K = estimate from Tracy-Widom test\
+{\listtext	j)	}"TW.P" the P-value from LFMM based on K = estimate from Tracy-Widom test\
+{\listtext	k)	}"K5.Zscore" the Z-score from LFMM based on K = 5\
+{\listtext	l)	}"K5.MinusLogP" the minus-log-P-value from LFMM based on K = 5\
+{\listtext	m)	}"K5.P" the P-value from LFMM based on K = 5\
+{\listtext	n)	}"K5.999perc" the value of the 99.9% on the neutral Z-score distribution for K = 5 (not used for analysis)\
+{\listtext	o)	}"KTW.999perc" the value of the 99.9% on the neutral Z-score distribution for K = estimate from Tracy-Widom (not used for analysis)\
+{\listtext	p)	}"KTW" The estimate of K from the Tracy-Widom test for this dataset\
+{\listtext	q)	}"L.q.K.5" q-value based on p-values output from LFMM with K = 5\
+{\listtext	r)	}"L.q.K.TW" q-value based on p-values output from LFMM with K = estimate from Tracy-Widom\
+{\listtext	s)	}"L.empQ.K.5" q-value based on empirical p-values calculated from known neutral loci with K = 5\
+{\listtext	t)	}"L.empQ.K.TW" q-value based on empirical p-values calculated from known neutral loci with K = estimate from Tracy-Widom\
+{\listtext	u)	}"Lq.K.5.FDR01" Logical indicating whether L.q.K.5 is significant at a False Discovery Rate of 0.01\
+{\listtext	v)	}"Lq.K.TW.FDR01" Logical indicating whether Lq.K.TW is significant at a False Discovery Rate of 0.01\
+{\listtext	w)	}"L.empQ.K.5.FDR01" Logical indicating whether L.empQ.K.5 is significant at a False Discovery Rate of 0.01\
+{\listtext	x)	}"L.empQ.K.TW.FDR01" Logical indicating whether L.empQ.K.TW is significant at a False Discovery Rate of 0.01\
+{\listtext	y)	}"pca.empP.K10S" empirical p-value based on known neutral loci from PCAdapt using K = 10 with scaling\
+{\listtext	z)	}"pca.q.K10S" q-value calculated from empirical p-values from PCAdapt using K = 10 with scaling\
+{\listtext	a)	}"pca.FDR01.K10S" Logical indicating whether pca.q.K10S is significant at a False Discovery Rate of 0.01\
+{\listtext	b)	}"pca.empP.K20S" empirical p-value based on known neutral loci from PCAdapt using K = 20 with scaling\
+{\listtext	c)	}"pca.q.K20S" q-value calculated from empirical p-values from PCAdapt using K = 20 with scaling\
+{\listtext	d)	}"pca.FDR01.K20S" Logical indicating whether pca.q.K20S is significant at a False Discovery Rate of 0.01\
+{\listtext	e)	}"pca.empP.K10NS" empirical p-value based on known neutral loci from PCAdapt using K = 10 with NO scaling\
+{\listtext	f)	}"pca.q.K10NS" q-value calculated from empirical p-values from PCAdapt using K = 10 with NO scaling\
+{\listtext	g)	}"pca.FDR01.K10NS" Logical indicating whether pca.q.K10NS is significant at a False Discovery Rate of 0.01\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+\cf0 \
+
+\b \ul III. File: sampleDesignDF_ResultsBayenv2LFMMpca_VENN\
+\
+
+\b0 \ulnone 1) This is a summary file of the results for the 240 datasets.\
+\
+\pard\tx220\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\li720\fi-720\pardirnatural\partightenfactor0
+\ls2\ilvl0\cf0 {\listtext	a)	}"Trt" Pairs (P), Transects (T), or Random (R) with the number of populations \
+{\listtext	b)	}"NumPop" The number of locations sampled on the landscape\
+{\listtext	c)	}"Type" Random, Pair, or Transect\
+{\listtext	d)	}"Demog" 1R, 2R, IM, or IBD\
+{\listtext	e)	}"Envi" #########_### identifier for the generated environment\
+{\listtext	f)	}"SET" an identifier\
+{\listtext	g)	}"NumInd" number of individuals sampled per location\
+{\listtext	h)	}"DataSetNames" name of the dataset used for bayenv2\
+{\listtext	i)	}"GoodBFfile" a logical not used for analysis\
+{\listtext	j)	}"numNeut" number of neutral loci included for analysis\
+{\listtext	k)	}"numSel" number of selected loci included for analysis (some were excluded for low heterozygosity)\
+{\listtext	l)	}"xtx.999perc"  the value of the 99.9% on the neutral XTX distribution (not used for analysis)\
+{\listtext	m)	}"bf.999perc"  the value of the 99.9% on the neutral BF distribution (not used for analysis)\
+{\listtext	n)	}"rho.999perc"  the value of the 99.9% on the neutral rho distribution (not used for analysis)\
+{\listtext	o)	}"xtx.FPR" False positive rate based on q<0.01 for empirical p-values calculated from XTX from bayenv2\
+{\listtext	p)	}"bf.FPR" False positive rate based on q<0.01 for empirical p-values calculated from BF from bayenv2\
+{\listtext	q)	}"rho.FPR" False positive rate based on q<0.01 for empirical p-values calculated from rho from bayenv2\
+{\listtext	r)	}"xtx.TPR" True positive rate based on q<0.01 for empirical p-values calculated from XTX from bayenv2\
+{\listtext	s)	}"bf.TPR" True positive rate based on q<0.01 for empirical p-values calculated from BF from bayenv2\
+{\listtext	t)	}"rho.TPR" True positive rate based on q<0.01 for empirical p-values calculated from XTX from bayenv2\
+{\listtext	u)	}"cpname" a file path (old variable)\
+{\listtext	v)	}"K5.999perc"  the value of the 99.9% on the neutral Z distribution from LFMM with K = 5\
+{\listtext	w)	}"KTW.999perc" the value of the 99.9% on the neutral Z distribution from LFMM with K = result from Tracy Widom test\
+{\listtext	x)	}"KTW" the value of K estimated from the Tracy Widom test\
+{\listtext	y)	}"Lq.K.5.FPR" False positive rate based on q<0.01 for p-values output from LFMM with K = 5\
+{\listtext	z)	}"Lq.K.TW.FPR" False positive rate based on q<0.01 for p-values output from LFMM with K = result from Tracy Widom test\
+{\listtext	a)	}"L.empQ.K.5.FPR" False positive rate based on q<0.01 for empirical p-values calculated from LFMM with K = 5\
+{\listtext	b)	}"L.empQ.K.TW.FPR" False positive rate based on q<0.01 for empirical p-values calculated from LFMM with K = result from Tracy Widom test\
+{\listtext	c)	}"Lq.K.5.TPR" True positive rate based on q<0.01 for p-values output from LFMM with K = 5\
+{\listtext	d)	}"Lq.K.TW.TPR" True positive rate based on q<0.01 for p-values output from LFMM with K = result from Tracy Widom test\
+{\listtext	e)	}"L.empQ.K.5.TPR" True positive rate based on q<0.01 for empirical p-values calculated from LFMM with K = 5\
+{\listtext	f)	}"L.empQ.K.TW.TPR" True positive rate based on q<0.01 for empirical p-values calculated from LFMM with K = result from Tracy Widom test\
+{\listtext	g)	}"pca.FPR.K10S" False positive rate based on q<0.01 for empirical p-values calculated from PCAdapt K = 10 with scaling\
+{\listtext	h)	}"pca.TPR.K10S" True positive rate based on q<0.01 for empirical p-values calculated from PCAdapt K = 10 with scaling\
+{\listtext	i)	}"pca.commonSelFactor.K10S" The number of the factor in PCAdapt on which the most selected loci loaded significantly for K = 10 with scaling\
+{\listtext	j)	}"pca.NumLocicommonSelFactor.K10S" The number of selected loci that loaded significantly onto pca.commonSelFactor.K10S\
+{\listtext	k)	}"pca.FPR.K20S" False positive rate based on q<0.01 for empirical p-values calculated from PCAdapt K = 20 with scaling\
+{\listtext	l)	}"pca.TPR.K20S" True positive rate based on q<0.01 for empirical p-values calculated from PCAdapt K = 20 with scaling\
+{\listtext	m)	}"pca.commonSelFactor.K20S" The number of the factor in PCAdapt on which the most selected loci loaded significantly for K = 20 with scaling\
+{\listtext	n)	}"pca.NumLocicommonSelFactor.K20S" The number of selected loci that loaded significantly onto pca.commonSelFactor.K20S\
+{\listtext	o)	}"pca.FPR.K10NS" False positive rate based on q<0.01 for empirical p-values calculated from PCAdapt K = 10 with NO scaling\
+{\listtext	p)	}"pca.TPR.K10NS" True positive rate based on q<0.01 for empirical p-values calculated from PCAdapt K = 10 with scaling\
+{\listtext	q)	}"pca.commonSelFactor.K10NS" The number of the factor in PCAdapt on which the most selected loci loaded significantly for K = 10 with NO scaling\
+{\listtext	r)	}"pca.NumLocicommonSelFactor.K10NS" The number of selected loci that loaded significantly onto pca.commonSelFactor.K10NS\
+{\listtext	s)	}The remaining columns starting with "V" are for making the Venn diagrams shown in the main text and supplementary materials. "NotFound" "GEAonly" "FSTonly" and "Both" are for the summary statistics below the Venn diagrams.\
+\ls2\ilvl0{\listtext	t)	}\cf2 \expnd0\expndtw0\kerning0
+\outl0\strokewidth0 \strokec2 \'93rda_veganv2.4-3_empQ_TP\'94 The count of the number of true positives from RDA.\
+\ls2\ilvl0\kerning1\expnd0\expndtw0 \outl0\strokewidth0 {\listtext	u)	}\expnd0\expndtw0\kerning0
+\outl0\strokewidth0 \strokec2 \'93rda_veganv2.4-3_empQ_TPR\'94 The true positive rate from RDA (rTP.empirical/n.sel).\
+\ls2\ilvl0\kerning1\expnd0\expndtw0 \outl0\strokewidth0 {\listtext	v)	}\expnd0\expndtw0\kerning0
+\outl0\strokewidth0 \strokec2 \'93dbrda_veganv2.4-3_empQ_TP\'94 The count of the number of true positives from dbRDA.\
+\ls2\ilvl0\kerning1\expnd0\expndtw0 \outl0\strokewidth0 {\listtext	w)	}\expnd0\expndtw0\kerning0
+\outl0\strokewidth0 \strokec2 \'93dbrda_veganv2.4-3_empQ_TPR\'94 The true positive rate from dbRDA (dTP.empirical/n.sel).\
+\ls2\ilvl0\kerning1\expnd0\expndtw0 \outl0\strokewidth0 {\listtext	x)	}\expnd0\expndtw0\kerning0
+\outl0\strokewidth0 \strokec2 \'93rda_veganv2.4-3_empP_001_TPR\'94 True positive rate using RDA for emp p-value from loci with 0.001 selection coefficient\
+\ls2\ilvl0\kerning1\expnd0\expndtw0 \outl0\strokewidth0 {\listtext	y)	}\expnd0\expndtw0\kerning0
+\outl0\strokewidth0 \strokec2 \'93rda_veganv2.4-3_empP_005_TPR\'94 True positive rate using RDA for emp p-value from loci with 0.005 selection coefficient\
+\ls2\ilvl0\kerning1\expnd0\expndtw0 \outl0\strokewidth0 {\listtext	z)	}\expnd0\expndtw0\kerning0
+\outl0\strokewidth0 \strokec2 \'93rda_veganv2.4-3_empP_01_TPR\'94 True positive rate using RDA for emp p-value from loci with 0.01 selection coefficient\
+\ls2\ilvl0\kerning1\expnd0\expndtw0 \outl0\strokewidth0 {\listtext	a)	}\expnd0\expndtw0\kerning0
+\outl0\strokewidth0 \strokec2 \'93rda_veganv2.4-3_empP_1_TPR\'94 True positive rate using RDA for emp p-value from loci with 1.0 selection coefficient\
+\ls2\ilvl0\kerning1\expnd0\expndtw0 \outl0\strokewidth0 {\listtext	b)	}\expnd0\expndtw0\kerning0
+\outl0\strokewidth0 \strokec2 \'93dbda_veganv2.4-3_empP_001_TPR\'94 True positive rate using dbRDA for emp p-value from loci with 0.001 selection coefficient\
+\ls2\ilvl0\kerning1\expnd0\expndtw0 \outl0\strokewidth0 {\listtext	c)	}\expnd0\expndtw0\kerning0
+\outl0\strokewidth0 \strokec2 \'93dbrda_veganv2.4-3_empP_005_TPR\'94 True positive rate using dbRDA for emp p-value from loci with 0.005 selection coefficient\
+\ls2\ilvl0\kerning1\expnd0\expndtw0 \outl0\strokewidth0 {\listtext	d)	}\expnd0\expndtw0\kerning0
+\outl0\strokewidth0 \strokec2 \'93dbrda_veganv2.4-3_empP_01_TPR\'94 True positive rate using dbRDA for emp p-value from loci with 0.01 selection coefficient\
+\ls2\ilvl0\kerning1\expnd0\expndtw0 \outl0\strokewidth0 {\listtext	e)	}\expnd0\expndtw0\kerning0
+\outl0\strokewidth0 \strokec2 \'93dbrda_veganv2.4-3_empP_1_TPR\'94 True positive rate using dbRDA for emp p-value from loci with 1.0 selection coefficient\
+\ls2\ilvl0\kerning1\expnd0\expndtw0 \outl0\strokewidth0 {\listtext	f)	}\expnd0\expndtw0\kerning0
+\outl0\strokewidth0 \strokec2 \'93rda_TPR_3SD\'94 True positive rate using RDA with cutoff of 3 SD\
+\ls2\ilvl0\kerning1\expnd0\expndtw0 \outl0\strokewidth0 {\listtext	g)	}\expnd0\expndtw0\kerning0
+\outl0\strokewidth0 \strokec2 \'93rda_FPR_3SD\'94 False positive rate using RDA with cutoff of 3 SD\
+\ls2\ilvl0\kerning1\expnd0\expndtw0 \outl0\strokewidth0 {\listtext	h)	}\expnd0\expndtw0\kerning0
+\outl0\strokewidth0 \strokec2 \'93rda_FDR_3SD\'94 False detection rate using RDA with cutoff of 3 SD\
+\ls2\ilvl0\kerning1\expnd0\expndtw0 \outl0\strokewidth0 {\listtext	i)	}\expnd0\expndtw0\kerning0
+\outl0\strokewidth0 \strokec2 \'93rda_TPR_001_3SD\'94 True positive rate using RDA with cutoff of 3 SD for loci with 0.001 selection coefficient\
+\ls2\ilvl0\kerning1\expnd0\expndtw0 \outl0\strokewidth0 {\listtext	j)	}\expnd0\expndtw0\kerning0
+\outl0\strokewidth0 \strokec2 \'93rda_TPR_005_3SD\'94 True positive rate using RDA with cutoff of 3 SD for loci with 0.005 selection coefficient\
+\ls2\ilvl0\kerning1\expnd0\expndtw0 \outl0\strokewidth0 {\listtext	k)	}\expnd0\expndtw0\kerning0
+\outl0\strokewidth0 \strokec2 \'93rda_TPR_01_3SD\'94 True positive rate using RDA with cutoff of 3 SD for loci with 0.01 selection coefficient\
+\ls2\ilvl0\kerning1\expnd0\expndtw0 \outl0\strokewidth0 {\listtext	l)	}\expnd0\expndtw0\kerning0
+\outl0\strokewidth0 \strokec2 \'93rda_TPR_1_3SD\'94 True positive rate using RDA with cutoff of 3 SD for loci with 1.0 selection coefficient\
+\ls2\ilvl0\kerning1\expnd0\expndtw0 \outl0\strokewidth0 {\listtext	m)	}\expnd0\expndtw0\kerning0
+\outl0\strokewidth0 \strokec2 \'93rda_TPR_25SD\'94 True positive rate using RDA with cutoff of 2.5 SD\
+\ls2\ilvl0\kerning1\expnd0\expndtw0 \outl0\strokewidth0 {\listtext	n)	}\expnd0\expndtw0\kerning0
+\outl0\strokewidth0 \strokec2 \'93rda_FPR_25SD\'94 False positive rate using RDA with cutoff of 2.5 SD\
+\ls2\ilvl0\kerning1\expnd0\expndtw0 \outl0\strokewidth0 {\listtext	o)	}\expnd0\expndtw0\kerning0
+\outl0\strokewidth0 \strokec2 \'93rda_FDR_25SD\'94 False detection rate using RDA with cutoff of 2.5 SD\
+\ls2\ilvl0\kerning1\expnd0\expndtw0 \outl0\strokewidth0 {\listtext	p)	}\expnd0\expndtw0\kerning0
+\outl0\strokewidth0 \strokec2 \'93rda_TPR_001_25SD\'94 True positive rate using RDA with cutoff of 2.5 SD for loci with 0.001 selection coefficient\
+\ls2\ilvl0\kerning1\expnd0\expndtw0 \outl0\strokewidth0 {\listtext	q)	}\expnd0\expndtw0\kerning0
+\outl0\strokewidth0 \strokec2 \'93rda_TPR_005_25SD\'94 True positive rate using RDA with cutoff of 2.5 SD for loci with 0.005 selection coefficient\
+\ls2\ilvl0\kerning1\expnd0\expndtw0 \outl0\strokewidth0 {\listtext	r)	}\expnd0\expndtw0\kerning0
+\outl0\strokewidth0 \strokec2 \'93rda_TPR_01_25SD\'94 True positive rate using RDA with cutoff of 2.5 SD for loci with 0.01 selection coefficient\
+\ls2\ilvl0\kerning1\expnd0\expndtw0 \outl0\strokewidth0 {\listtext	s)	}\expnd0\expndtw0\kerning0
+\outl0\strokewidth0 \strokec2 \'93rda_TPR_1_25SD\'94 True positive rate using RDA with cutoff of 2.5 SD for loci with 1.0 selection coefficient\
+\ls2\ilvl0\kerning1\expnd0\expndtw0 \outl0\strokewidth0 {\listtext	t)	}\expnd0\expndtw0\kerning0
+\outl0\strokewidth0 \strokec2 \'93dbrda_TPR_3SD\'94 True positive rate using dbRDA with cutoff of 3 SD \
+\ls2\ilvl0\kerning1\expnd0\expndtw0 \outl0\strokewidth0 {\listtext	u)	}\expnd0\expndtw0\kerning0
+\outl0\strokewidth0 \strokec2 \'93dbrda_FPR_3SD\'94 False positive rate using dbRDA with cutoff of 3 SD\
+\ls2\ilvl0\kerning1\expnd0\expndtw0 \outl0\strokewidth0 {\listtext	v)	}\expnd0\expndtw0\kerning0
+\outl0\strokewidth0 \strokec2 \'93dbrda_FDR_3SD\'94 False detection rate using dbRDA with cutoff of 3 SD\
+\ls2\ilvl0\kerning1\expnd0\expndtw0 \outl0\strokewidth0 {\listtext	w)	}\expnd0\expndtw0\kerning0
+\outl0\strokewidth0 \strokec2 \'93dbrda_TPR_001_3SD\'94 True positive rate using dbRDA with cutoff of 3 SD for loci with 0.001 selection coefficient\
+\ls2\ilvl0\kerning1\expnd0\expndtw0 \outl0\strokewidth0 {\listtext	x)	}\expnd0\expndtw0\kerning0
+\outl0\strokewidth0 \strokec2 \'93dbrda_TPR_005_3SD\'94 True positive rate using dbRDA with cutoff of 3 SD for loci with 0.005 selection coefficient\
+\ls2\ilvl0\kerning1\expnd0\expndtw0 \outl0\strokewidth0 {\listtext	y)	}\expnd0\expndtw0\kerning0
+\outl0\strokewidth0 \strokec2 \'93dbrda_TPR_01_3SD\'94 True positive rate using dbRDA with cutoff of 3 SD for loci with 0.01 selection coefficient\
+\ls2\ilvl0\kerning1\expnd0\expndtw0 \outl0\strokewidth0 {\listtext	z)	}\expnd0\expndtw0\kerning0
+\outl0\strokewidth0 \strokec2 \'93dbrda_TPR_1_3SD\'94 True positive rate using dbRDA with cutoff of 3 SD for loci with 1.0 selection coefficient\
+\ls2\ilvl0\kerning1\expnd0\expndtw0 \outl0\strokewidth0 {\listtext	a)	}\expnd0\expndtw0\kerning0
+\outl0\strokewidth0 \strokec2 \'93dbrda_TPR_25SD\'94 True positive rate using dbRDA with cutoff of 2.5 SD\
+\ls2\ilvl0\kerning1\expnd0\expndtw0 \outl0\strokewidth0 {\listtext	b)	}\expnd0\expndtw0\kerning0
+\outl0\strokewidth0 \strokec2 \'93dbrda_FPR_25SD\'94 False positive rate using dbRDA with cutoff of 2.5 SD\
+\ls2\ilvl0\kerning1\expnd0\expndtw0 \outl0\strokewidth0 {\listtext	c)	}\expnd0\expndtw0\kerning0
+\outl0\strokewidth0 \strokec2 \'93dbrda_FDR_25SD\'94 False detection rate using dbRDA with cutoff of 2.5 SD\
+\ls2\ilvl0\kerning1\expnd0\expndtw0 \outl0\strokewidth0 {\listtext	d)	}\expnd0\expndtw0\kerning0
+\outl0\strokewidth0 \strokec2 \'93dbrda_TPR_001_25SD\'94 True positive rate using dbRDA with cutoff of 2.5 SD for loci with 0.001 selection coefficient\
+\ls2\ilvl0\kerning1\expnd0\expndtw0 \outl0\strokewidth0 {\listtext	e)	}\expnd0\expndtw0\kerning0
+\outl0\strokewidth0 \strokec2 \'93dbrda_TPR_005_25SD\'94 True positive rate using dbRDA with cutoff of 2.5 SD for loci with 0.005 selection coefficient\
+\ls2\ilvl0\kerning1\expnd0\expndtw0 \outl0\strokewidth0 {\listtext	f)	}\expnd0\expndtw0\kerning0
+\outl0\strokewidth0 \strokec2 \'93dbrda_TPR_01_25SD\'94 True positive rate using dbRDA with cutoff of 2.5 SD for loci with 0.01 selection coefficient\
+\ls2\ilvl0\kerning1\expnd0\expndtw0 \outl0\strokewidth0 {\listtext	g)	}\expnd0\expndtw0\kerning0
+\outl0\strokewidth0 \strokec2 \'93dbrda_TPR_1_25SD\'94 True positive rate using dbRDA with cutoff of 2.5 SD for loci with 1.0 selection coefficient\cf0 \kerning1\expnd0\expndtw0 \outl0\strokewidth0 \
+}
