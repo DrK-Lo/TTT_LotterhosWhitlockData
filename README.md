@@ -8,7 +8,7 @@ These loci were analyzed by Lotterhos and Whitlock 2015 (LW2015), and subsequent
 
 Description of each folder or file and the data contained within:
 
-* *SchemeRandom1.txt*: gives the x,y coordinates of each population in the data. These are plotted in "SchemeRandom1_SampleLocs_90pops.pdf"
+* *"SchemeRandom1.txt"*: gives the x,y coordinates of each population in the data. These are plotted in *"SchemeRandom1_SampleLocs_90pops.pdf"*
   * "PopID" 
   * "X_Pops" 
   * "Y_Pops" 
@@ -17,6 +17,11 @@ Description of each folder or file and the data contained within:
   * "R30" 
   * "NSRangeTrans_30"
 
+* "*simfiles*": the original simulations downloaded from the Dryad repository for LW2015
+
+* "*results*": the original results downloaded from the Dryad repository for LW2015
+
+* "*forester_simfiles*": This folder contains the LW2015 simulated data that was used in Forester et al. 2017. Because LW 2015 sampled allele frequencies, Forester et al. randomly sampled genotypes from those allele frequencies. So these are the datasets that should be used for subsequent analysis.
+
+
 * 
-
-
