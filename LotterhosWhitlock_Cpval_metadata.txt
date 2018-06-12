@@ -34,60 +34,18 @@ II. Folder: SummaryFiles
 	d)	"FST.All" Fst for the entire landscape
 	e)	"s_high" The landscape-level selection coefficient (sL in the paper)
 	f)	"ENVI_ID" The ID of the environment to which selected loci adapted.  (NA for neutral loci) 
-	g)	"demog" Demography (4 levels) 
-	h)	"Set" an indicator used by the authors 
-	i)	"p.end" mean allele frequency of the landscape at the end of the simulation
-	j)	"SNPIncluded" not used in analysis
-	k)	"filename" corresponds to file nomenclature as described above
-	l)	"He.LS" Heterozygosity of the landscape
-	m)	"He_samp" Heterozygosity of the sample
-	n)	"UseSNP" logical indicating whether or not to use the SNP in analysis (SNPs with low He were not included)
-	o)	"log.bf" Log Bayes Factor from Bayenv2
-	p)	"rho" Rho from Bayenv2 
-	q)	"xtx" XTX from Bayenv2 
-	r)	"SNP.LA2" a summary statistic calculated by the authors not used in the paper
-	s)	"cols" color indicator for plotting
-	t)	"pch1" points indicator for plotting
-	u)	"IsNeut" logical indicator for whether or not it is a neutral locus
-	v)	"xtx.999perc" the value of the 99.9% on the neutral XTX distribution (not used for analysis)
-	w)	"bf.999perc" the value of the 99.9% on the neutral BF distribution (not used for analysis)
-	x)	 "rho.999perc" the value of the 99.9% on the neutral rho distribution (not used for analysis)
-	y)	"xtx.empP" the empirical p-value based on known neutral loci
-	z)	"bf.empP"  the empirical p-value based on known neutral loci
-	a)	"rho.empP"  the empirical p-value based on known neutral loci
-	b)	"xtx.q" the qvalue based on the empirical p-value
-	c)	"bf.q"  the qvalue based on the empirical p-value
-	d)	"rho.q" the qvalue based on the empirical p-value
-	e)	"xtx.FDR01" a logical indicating whether the SNP was significant at a False Discovery Rate of 1/100 (q < 0.01)
-	f)	"bf.FDR01" a logical indicating whether the SNP was significant at a False Discovery Rate of 1/100 (q < 0.01)
-	g)	"rho.FDR01" a logical indicating whether the SNP was significant at a False Discovery Rate of 1/100 (q < 0.01)
-	h)	"TW.Zscore" the Z-score from LFMM based on K = estimate from Tracy-Widom test
-	i)	"TW.MinusLogP" the minus-log-P-value from LFMM based on K = estimate from Tracy-Widom test
-	j)	"TW.P" the P-value from LFMM based on K = estimate from Tracy-Widom test
-	k)	"K5.Zscore" the Z-score from LFMM based on K = 5
-	l)	"K5.MinusLogP" the minus-log-P-value from LFMM based on K = 5
-	m)	"K5.P" the P-value from LFMM based on K = 5
-	n)	"K5.999perc" the value of the 99.9% on the neutral Z-score distribution for K = 5 (not used for analysis)
-	o)	"KTW.999perc" the value of the 99.9% on the neutral Z-score distribution for K = estimate from Tracy-Widom (not used for analysis)
-	p)	"KTW" The estimate of K from the Tracy-Widom test for this dataset
-	q)	"L.q.K.5" q-value based on p-values output from LFMM with K = 5
-	r)	"L.q.K.TW" q-value based on p-values output from LFMM with K = estimate from Tracy-Widom
-	s)	"L.empQ.K.5" q-value based on empirical p-values calculated from known neutral loci with K = 5
-	t)	"L.empQ.K.TW" q-value based on empirical p-values calculated from known neutral loci with K = estimate from Tracy-Widom
-	u)	"Lq.K.5.FDR01" Logical indicating whether L.q.K.5 is significant at a False Discovery Rate of 0.01
-	v)	"Lq.K.TW.FDR01" Logical indicating whether Lq.K.TW is significant at a False Discovery Rate of 0.01
-	w)	"L.empQ.K.5.FDR01" Logical indicating whether L.empQ.K.5 is significant at a False Discovery Rate of 0.01
-	x)	"L.empQ.K.TW.FDR01" Logical indicating whether L.empQ.K.TW is significant at a False Discovery Rate of 0.01
-	y)	"pca.empP.K10S" empirical p-value based on known neutral loci from PCAdapt using K = 10 with scaling
-	z)	"pca.q.K10S" q-value calculated from empirical p-values from PCAdapt using K = 10 with scaling
-	a)	"pca.FDR01.K10S" Logical indicating whether pca.q.K10S is significant at a False Discovery Rate of 0.01
-	b)	"pca.empP.K20S" empirical p-value based on known neutral loci from PCAdapt using K = 20 with scaling
-	c)	"pca.q.K20S" q-value calculated from empirical p-values from PCAdapt using K = 20 with scaling
-	d)	"pca.FDR01.K20S" Logical indicating whether pca.q.K20S is significant at a False Discovery Rate of 0.01
-	e)	"pca.empP.K10NS" empirical p-value based on known neutral loci from PCAdapt using K = 10 with NO scaling
-	f)	"pca.q.K10NS" q-value calculated from empirical p-values from PCAdapt using K = 10 with NO scaling
-	g)	"pca.FDR01.K10NS" Logical indicating whether pca.q.K10NS is significant at a False Discovery Rate of 0.01
-
+	g)	"demog" Demography (4 levels)  
+	h)	"p.end" mean allele frequency of the landscape at the end of the simulation
+	i)	"SNPIncluded" not used in analysis
+	j)	"filename" corresponds to file nomenclature as described above
+	k)	"He.LS" Heterozygosity of the landscape
+	l)	"He_samp" Heterozygosity of the sample
+	m)	"log.bf" Log Bayes Factor from Bayenv2
+	n)	"rho" Rho from Bayenv2 
+	o)	"xtx" XTX from Bayenv2 
+	p)	"cols" color indicator for plotting
+	q)	"pch1" points indicator for plotting
+	
 III. File: sampleDesignDF_ResultsBayenv2LFMMpca_VENN
 
 1) This is a summary file of the results for the 240 datasets.
