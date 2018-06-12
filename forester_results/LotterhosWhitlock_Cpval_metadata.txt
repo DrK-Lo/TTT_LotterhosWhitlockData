@@ -40,11 +40,13 @@ II. Folder: SummaryFiles
 	j)	"filename" corresponds to file nomenclature as described above
 	k)	"He.LS" Heterozygosity of the landscape
 	l)	"He_samp" Heterozygosity of the sample
-	m)	"log.bf" Log Bayes Factor from Bayenv2
-	n)	"rho" Rho from Bayenv2 
-	o)	"xtx" XTX from Bayenv2 
+	m)	"bayescan_bayescan2.1_log.bf" Log Bayes Factor from Bayenv2
+	n)	"bayescan_bayescan2.1_rho" Rho from Bayenv2 
+	o)	"bayescan_bayescan2.1_xtx" XTX from Bayenv2 
 	p)	"cols" color indicator for plotting
 	q)	"pch1" points indicator for plotting
+	r)	"rda_veganv2.4.3_loading" loadings of the SNPs on the first axis from RDA analysis
+	s)	"dbrda_veganv2.4.3_loading" loadings of the SNPs on the first axis from dbRDA analysis
 	
 III. File: sampleDesignDF_ResultsBayenv2LFMMpca_VENN
 
