@@ -1,5 +1,6 @@
 start_time <- Sys.time()
 # Code to replicate analyses in Forester et al. (submitted) 
+# Use repORD.sh to run this script across multiple nodes
 
 ############################################################################ 
 # Data preparation for all GEA methods used to detect multilocus selection #
