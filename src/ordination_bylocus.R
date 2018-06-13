@@ -1,40 +1,42 @@
-start_time <- Sys.time()
-# Code to replicate analyses in Forester et al. (submitted) 
+#######################################
+#
+# ordination_by_locus.R
+# created by Brenna Forester
+# modified by Brett Ford
+# Created 20180308
+#
+# This script replicates analyses in Forester et al. (2018)
 # Use repORD.sh to run this script across multiple nodes
+# Edit paths to make sure code runs properly
+#
+# Lotterhos KE, Whitlock MC (2015) Data from: The relative power of genome scans 
+# to detect local adaptation depends on sampling design and statistical method. 
+# Dryad Digital Repository. http://dx.doi.org/10.5061/dryad.mh67v
+#
+# Usage: Rscript ordination_by_locus.R
+#
+######################################
 
 ############################################################################ 
 # Data preparation for all GEA methods used to detect multilocus selection #
 ############################################################################
 
-# (1) Lotterhos & Whitlock (2015) simulation data are archived on Dryad:
-
-# Lotterhos KE, Whitlock MC (2015) Data from: The relative power of genome scans 
-# to detect local adaptation depends on sampling design and statistical method. 
-# Dryad Digital Repository. http://dx.doi.org/10.5061/dryad.mh67v
-
-# (2) Additional required simulation files are archived on Dryad:
-
-# Wagner HH, Ch?vez-Pesqueira M, Forester BR (2017) Data from:
-# Spatial detection of outlier loci with Moran eigenvector maps (MEM). 
-# Dryad Digital Repository. http://dx.doi.org/10.5061/dryad.b12kk
-
-# File paths below assume that the additional .txt files
-# (from #2) are saved in the base_path folder.
-
-# Data prep code modified from code provided with:
-# Wagner HH, Ch?vez-Pesqueira M, Forester BR (2017) Spatial detection of outlier
-# loci with Moran eigenvector maps (MEM). Molecular Ecology Resources.
-
-  # input arguments from the command line
-  args <- commandArgs(TRUE)
+# input arguments from the command line
+args <- commandArgs(TRUE)
   
-  # what simulation
-  seed <- args[1]
+# what simulation
+seed <- args[1]
 
+# Load required libraries
+library(vegan)
+library(tools)
+
+# Specify paths
 base_path <- "/home/br.ford/br.ford_remote/r_projects/forester_sim_code/dryad"
 forester_simfiles_path <- "/Users/brettford/Desktop/Northeastern/coding/forester_simulation_code/forester_sim_code/TTT_LotterhosWhitlockData/forester_simfiles/"
-forester_results_path<- "/Users/brettford/Desktop/Northeastern/coding/forester_simulation_code/forester_sim_code/TTT_LotterhosWhitlockData/forester_results/"
+forester_results_path <- "/Users/brettford/Desktop/Northeastern/coding/forester_simulation_code/forester_sim_code/TTT_LotterhosWhitlockData/forester_results/"
 
+# Specify working directory
 setwd(forester_simfiles_path)
 
 # Coordinates 
@@ -149,16 +151,9 @@ Design.sel$NumPops <- as.numeric(as.character(Design.sel$NumPops))
 Sites.90 <- c(1:nrow(Design))[Design$NumPops==90]
 Sel.90   <- c(1:nrow(Design.sel))[Design.sel$NumPops==90]
 
-# Code to replicate analyses in Forester et al. (submitted) 
-
 ##########################################
 # Constrained Ordinations: RDA and dbRDA #
 ##########################################
-# This code assumes that 1-Data_Prep.R has already been run & is in session memory...
-
-out_path <- "/Users/brettford/Desktop/Northeastern/coding/forester_simulation_code/forester_sim_code/TTT_LotterhosWhitlockData/forester_results/"
-
-library(vegan)
 
 # Function to calculate empirical p-values
 # ----------------------------------------
@@ -190,29 +185,19 @@ outliers <- function(x,z){
   as.numeric(names(out <- x[x < lims[1] | x > lims[2]]))   # locus names in these tails
 }
 
-
 # Data prep
 # ---------
 
-# The 72 simulation data sets were run separately as an array on a computing cluster.
-# Code can easily be modified to run one simulation at a time (e.g. "j=1"), 
-# or in a loop (e.g. "for (j in 1:72) {}").
-
-# On a cluster, grab the array ID value from the environment variable passed from sbatch
-# slurm_arrayid <- Sys.getenv('SLURM_ARRAY_TASK_ID')
-# j <- as.numeric(slurm_arrayid)
-
-j = as.numeric(seed)# Simulation data set #2 (see notes above)
+j = as.numeric(seed)
 
 verify <- "Do the files match?"
-#for (j in 1:72) {
 
 i=Sites.90[j] #the number of file (x out of 72) in all 242 simulation files
 Site <- rep(1:Design$NumPops[i],each=as.numeric(as.vector(Design$NumInd)[i])) 
 tmp <- read.table(paste0(forester_simfiles_path, Filenames.lfmm[[i]])) # the genetic data
 
 z=Sel.90[j]
-doubleCheck <- identical(unlist(Design[i,]), unlist(Design.sel[z,]))# sanity check that the files match up
+doubleCheck <- identical(unlist(Design[i,]), unlist(Design.sel[z,])) # sanity check that the files match up
 verify <- rbind(verify, doubleCheck)
 file1 <- read.table(paste0(forester_results_path, Filenames.sum[[z]]), header=T)
 colnames(tmp) <- file1$SNPnames[file1$SNPIncluded==TRUE]
@@ -220,9 +205,7 @@ nloci <- ncol(tmp)   # number of loci; not exactly 10,000 because those with low
 
 tmp.Site <- split(tmp, Site)
 
-
 # SNPs are assigned sequentially in the sims, so they need to be randomized within populations.
-# Use same seed for each population (1:90)
 for (rs in 1:length(tmp.Site)) {               
   set.seed(rs)
   tmp.Site[[rs]] <- apply(as.data.frame(tmp.Site[[rs]]),2,sample)
@@ -231,8 +214,6 @@ for (rs in 1:length(tmp.Site)) {
 snps <- as.data.frame(do.call("rbind", tmp.Site))
 snps[snps==2] <- 1    # set 2s to 1 for snmf, LEA
 colnames(snps) <- c(1:ncol(snps))
-#colnames(snps) <- colnames(tmp)
-#write.table(snps, file=paste0(out_path, Filenames.lfmm[[i]]), sep = " ", row.names = F, col.names = F)
 
 coord.full <- data.matrix(Coords[[as.numeric(Design$Type[i])]][[as.numeric(Design$Env[i])]])
 des <- coord.full[ , grepl( Design$Design[i] , colnames(coord.full) ) ] #search for P90 in coord.full columns and set equal to des
@@ -287,7 +268,7 @@ library(qvalue)
 emp.q_r <- qvalue(emp.p_r)$qvalues
 emp.q_r_df <- as.data.frame(emp.q_r)
 emp_total <- cbind(emp_total, emp.q_r_df)
-#head(emp_total)
+
 #rT.empirical <- as.numeric(names(which(emp.q_r[9901:nloci] < 0.01)))
 #rTP.empirical <- sum(emp.q_r[9901:nloci] < 0.01, na.rm=TRUE)
 #rTPR.empirical <- mean(emp.q_r[9901:nloci] < 0.01, na.rm=TRUE)
@@ -452,14 +433,7 @@ for (p in 1:nloci) {
 
 emp_total_final <- cbind(emp_total, emp_total_db[, 3:8], corresponding_file=Filenames.sum[[z]])
 i=Sites.90[j]
-library(tools)
 simulation <- file_path_sans_ext(Filenames.lfmm[[i]])
 write.table(emp_total_final, file= paste0(forester_results_path,"ordination_results", "/ORD_locus_stats_", simulation, ".txt"), sep = " ", row.names = F)
-message("Locus file succesfully written")
-rm(emp_total)
-rm(emp_total_db)
 j= as.numeric(seed)
 write.table(verify, file= paste0(forester_results_path,"ordination_results/", j, "verifying_match.txt"), sep = " ", row.names =F)
-end_time <- Sys.time()
-time_amt <- end_time - start_time
-write.table(time_amt, file= paste0(forester_results_path,"ordination_results/", j, "time_amt_ordinations_bylocus.txt"), sep = " ", row.names =F)
