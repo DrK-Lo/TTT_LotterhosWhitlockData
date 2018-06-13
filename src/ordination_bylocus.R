@@ -32,7 +32,6 @@ library(vegan)
 library(tools)
 
 # Specify paths
-base_path <- "/home/br.ford/br.ford_remote/r_projects/forester_sim_code/dryad"
 forester_simfiles_path <- "/Users/brettford/Desktop/Northeastern/coding/forester_simulation_code/forester_sim_code/TTT_LotterhosWhitlockData/forester_simfiles/"
 forester_results_path <- "/Users/brettford/Desktop/Northeastern/coding/forester_simulation_code/forester_sim_code/TTT_LotterhosWhitlockData/forester_results/"
 
@@ -315,7 +314,7 @@ for (i in 1:nloci) {
 # --------------
 z=Sel.90[j]
 #doubleCheck <- identical(unlist(Design[i,]), unlist(Design.sel[z,]))  # sanity check that the files match up
-#tmp <- read.table(paste0(base_path,"/SummaryFiles/", Filenames.sum[[z]]), header=T) # the summary file
+#tmp <- read.table(paste0(forester_results_path, Filenames.sum[[z]]), header=T) # the summary file
 #tmp <- tmp[(tmp$IsNeut=="Sel" & tmp$SNPIncluded==TRUE), 5]
 #The above line of code states to subset the data to only include loci under selection (IsNeut=="Sel") and those that are used (IncludeSNP=="TRUE)
 #n.sel <- length(tmp)
