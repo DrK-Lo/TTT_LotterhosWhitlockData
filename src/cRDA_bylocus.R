@@ -194,8 +194,8 @@ tmp <- read.table(paste0(forester_simfiles_path, Filenames.lfmm[[i]])) # the gen
 z=Sel.90[j]
 doubleCheck <- identical(unlist(Design[i,]), unlist(Design.sel[z,]))# sanity check that the files match up
 verify <- rbind(verify, doubleCheck)
-file1 <- read.table(paste0(forester_simfiles_path, Filenames.sum[[z]]), header=T)
-colnames(tmp) <- file1$SNPnames[file1$UseSNP==TRUE]
+file1 <- read.table(paste0(forester_results_path, Filenames.sum[[z]]), header=T)
+colnames(tmp) <- file1$SNPnames[file1$SNPIncluded==TRUE]
 nloci <- ncol(tmp)   # number of loci
 
 tmp.Site <- split(tmp, Site)
@@ -300,8 +300,8 @@ nloadPA <- dim(loadPA)[2]  # these loadings are correlations between SNPs and re
 names(loadPA) <- c(1:nloci)
 
 
-emp_total_cRDA <- as.data.frame(cbind(id=c(1:nloci), SNPnames=file1$SNPnames[file1$UseSNP==TRUE], loadings=loadPA[,1]))
-emp_total_cRDA$SNPnames <- file1$SNPnames[file1$UseSNP==TRUE]
+emp_total_cRDA <- as.data.frame(cbind(id=c(1:nloci), SNPnames=file1$SNPnames[file1$SNPIncluded==TRUE], loadings=loadPA[,1]))
+emp_total_cRDA$SNPnames <- file1$SNPnames[file1$SNPIncluded==TRUE]
 
 neu.ep <- abs(loadPA[1:9900])
 sel.ep <- abs(loadPA[9901:nloci])
@@ -335,7 +335,7 @@ for (i in 1:nloci) {
 #z=Sel.90[j]
 #doubleCheck <- identical(unlist(Design[i,]), unlist(Design.sel[z,]))  # sanity check that the files match up
 #tmp <- read.table(paste0(forester_simfiles_path, Filenames.sum[[z]]), header=T) # the summary file
-#tmp <- tmp[(tmp$IsNeut=="Sel" & tmp$UseSNP==TRUE), 5]
+#tmp <- tmp[(tmp$IsNeut=="Sel" & tmp$SNPIncluded==TRUE), 5]
 #n.sel <- length(tmp)
 #tmp <- as.data.frame(cbind(c(9901:(9900+n.sel)), tmp))
 #names(tmp) <- c("SNP","Sel")
@@ -389,5 +389,5 @@ emp_cRDA_final <- cbind(emp_total_cRDA, corresponding_file=Filenames.sum[[z]])
 library(tools)
 i=Sites.90[j]
 simulation <- file_path_sans_ext(Filenames.lfmm[[i]])
-write.table(emp_cRDA_final, file=paste0(forester_results_path,"cRDA_locus_stats_", simulation, ".txt"), sep = " ", row.names = F)
-write.table(verify, file= paste0(forester_results_path, "cRDA_verifying_match.txt"), sep = " ", row.names =F)
+write.table(emp_cRDA_final, file=paste0(forester_results_path,"constrainedordination_resultsordination_results/cRDA_locus_stats_", simulation, ".txt"), sep = " ", row.names = F)
+write.table(verify, file= paste0(forester_results_path, "constrainedordination_results/cRDA_verifying_match.txt"), sep = " ", row.names =F)

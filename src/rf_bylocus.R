@@ -168,7 +168,7 @@ z=Sel.90[j]
 doubleCheck <- identical(unlist(Design[i,]), unlist(Design.sel[z,]))# sanity check that the files match up
 verify <- rbind(verify, doubleCheck)
 file1 <- as.data.frame(read.table(paste0(forester_results_path, Filenames.sum[[z]]), header=T))
-colnames(tmp) <- file1$SNPnames[file1$UseSNP==TRUE]
+colnames(tmp) <- file1$SNPnames[file1$SNPIncluded==TRUE]
 nloci <- ncol(tmp)
 
 tmp.Site <- split(tmp, Site)
@@ -331,7 +331,7 @@ FPR <- sum(cand.RF <= 9900) / 9900
 
 #z=Sel.90[j]
 #tmp <- read.table(paste0(base_path,"/SummaryFiles/", Filenames.sum[[z]]), header=T) # the summary file
-tmp <- tmp[(tmp$IsNeut=="Sel" & tmp$UseSNP==TRUE), 5]
+tmp <- tmp[(tmp$IsNeut=="Sel" & tmp$SNPIncluded==TRUE), 5]
 #n.sel <- length(tmp)
 #tmp <- as.data.frame(cbind(c(9901:(9900+n.sel)), tmp))
 #names(tmp) <- c("SNP","Sel")
@@ -351,7 +351,7 @@ tmp <- tmp[(tmp$IsNeut=="Sel" & tmp$UseSNP==TRUE), 5]
 # Write out results
 # -----------------
 message("Writing results")
-rf_total <- as.data.frame(cbind(id=c(1:nloci), SNPnames=file1$SNPnames[file1$UseSNP==TRUE], rf_log=rep(NA, nloci)))
+rf_total <- as.data.frame(cbind(id=c(1:nloci), SNPnames=file1$SNPnames[file1$SNPIncluded==TRUE], rf_log=rep(NA, nloci)))
 
 for (q in 1:nloci) {
   if(rf_total[q,1] %in% cand.RF) {
@@ -368,7 +368,7 @@ i=Sites.90[j]
 
 simulation <- file_path_sans_ext(Filenames.lfmm[[i]])
 
-write.table(rf_total, file=paste0(forester_results_path, "RF_locus_stats_", simulation, ".txt"), sep = " ", row.names = F)
-write.table(imp_total, file=paste0(forester_results_path, "RF_importance_", simulation, ".txt"), sep = " ", row.names = F)
-write.table(hout, file=paste0(forester_results_path, "RF_bestloci_imp_", simulation, ".txt"), sep = " ", row.names = F)
-write.table(verify, file= paste0(forester_results_path, j, "_verifying_match_RF.txt"), sep = " ", row.names =F)
+write.table(rf_total, file=paste0(forester_results_path, "rf_results/RF_locus_stats_", simulation, ".txt"), sep = " ", row.names = F)
+write.table(imp_total, file=paste0(forester_results_path, "rf_results/RF_importance_", simulation, ".txt"), sep = " ", row.names = F)
+write.table(hout, file=paste0(forester_results_path, "rf_results/RF_bestloci_imp_", simulation, ".txt"), sep = " ", row.names = F)
+write.table(verify, file= paste0(forester_results_path, "rf_results/", j, "_verifying_match_RF.txt"), sep = " ", row.names =F)
