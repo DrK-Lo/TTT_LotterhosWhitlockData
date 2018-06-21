@@ -16,6 +16,12 @@
 #This requires that the dryad repository be downloaded
 #Not present on the github repository, due to large memory requirements
 dryad_path <- "/Users/brettford/Desktop/Northeastern/coding/forester_simulation_code/dryad"
+root_path <- root_path <- "/Users/brettford/Desktop/Northeastern/coding/forester_simulation_code/forester_sim_code/TTT_LotterhosWhitlockData/"
+
+#Set subdirectories
+forester_simfiles_path <- paste0(root_path, "forester_simfiles/")
+forester_results_path <- paste0(root_path, "forester_results/")
+
 
 #Get lfmm files
 Filenames.lfmm <- list.files(path=paste0(dryad_path,"/SimFilesLFMM/"), pattern="NumPops=90.*6.lfmm|NumPops=90.*20.lfmm")
@@ -35,7 +41,7 @@ for(i in Filenames.lfmm){
   original_file[original_file==2] <- 1
   
   #Read in randomized file
-  randomized_file <- read.table(paste0("../forester_simfiles/", i), header = FALSE, sep=" ")
+  randomized_file <- read.table(paste0(forester_simfiles_path, i), header = FALSE, sep=" ")
   if(grepl("20.lfmm", i)){
     logical_table <- data.frame(matrix(NA, nrow = (nrow(randomized_file)/20), ncol = 10))
     for(j in 1:10){
@@ -85,4 +91,4 @@ for(i in Filenames.lfmm){
   
 }
 
-write.table(logical_results, file = paste0("../forester_results/","logical_results.txt"), sep = "\t", row.names=FALSE,col.names = FALSE)
+write.table(logical_results, file = paste0(forester_results_path, "logical_results.txt"), sep = "\t", row.names=FALSE,col.names = FALSE)

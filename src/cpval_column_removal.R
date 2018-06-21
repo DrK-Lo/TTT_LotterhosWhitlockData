@@ -15,8 +15,9 @@
 library(readr)
 
 #List cpval files with data appended from Forester et al. 2018
-
-forester_results_path <- "/Users/brettford/Desktop/Northeastern/coding/forester_simulation_code/forester_sim_code/TTT_LotterhosWhitlockData/forester_results/"
+root_path <- "/Users/brettford/Desktop/Northeastern/coding/forester_simulation_code/forester_sim_code/TTT_LotterhosWhitlockData/"
+forester_simfiles_path <- paste0(root_path, "forester_simfiles/")
+forester_results_path <- paste0(root_path, "forester_results/")
 
 #Get cpval files
 Filenames.cpval <- list.files(path=forester_results_path, pattern="Cpval")

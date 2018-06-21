@@ -247,9 +247,9 @@ load.dbrda_df <- as.data.frame(load.dbrda)
 rda_df <- cbind(id=c(1:nloci), SNPnames=file1$SNPnames[file1$SNPIncluded==TRUE], load.rda_df)
 dbrda_df <- cbind(id=c(1:nloci), SNPnames=file1$SNPnames[file1$SNPIncluded==TRUE], load.dbrda_df)
 
-# -----------------
+# ------------------
 # Write out results
-# -----------------
+# ------------------
 
 rda_final <- cbind(rda_df, dbrda_df[, 3:7], corresponding_file=Filenames.sum[[z]])
 i=Sites.90[j]

@@ -31,8 +31,9 @@ library(pracma)
 library(qvalue)
 
 # Specify paths
-forester_simfiles_path <- "/Users/brettford/Desktop/Northeastern/coding/forester_simulation_code/forester_sim_code/TTT_LotterhosWhitlockData/forester_simfiles/"
-forester_results_path <- "/Users/brettford/Desktop/Northeastern/coding/forester_simulation_code/forester_sim_code/TTT_LotterhosWhitlockData/forester_results/"
+root_path <- "/Users/brettford/Desktop/Northeastern/coding/forester_simulation_code/forester_sim_code/TTT_LotterhosWhitlockData/"
+forester_simfiles_path <- paste0(root_path, "forester_simfiles/")
+forester_results_path <- paste0(root_path, "forester_results/")
 
 # Specify working directory
 setwd(forester_simfiles_path)

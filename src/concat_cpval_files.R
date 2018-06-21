@@ -13,18 +13,22 @@
 #
 ######################################
 
-#Set directories
-base_path <- "/Users/brettford/Desktop/Northeastern/coding/forester_simulation_code/dryad"
-out_path <- "/Users/brettford/Desktop/Northeastern/coding/forester_simulation_code/forester_sim_code/output/"
+#Set directories- You should just have to change these if the repository was cloned
+root_path <- root_path <- "/Users/brettford/Desktop/Northeastern/coding/forester_simulation_code/forester_sim_code/TTT_LotterhosWhitlockData/"
+dryad_path <- "/Users/brettford/Desktop/Northeastern/coding/forester_simulation_code/dryad"
+
+#Set subdirectories
+forester_results_path <- paste0(root_path, "forester_results/")
+ord_path <- paste0(forester_results_path, "ordination_results/")
 
 #Load libraries
 library(plyr)
 
 #Unlist ordination files output from running Brenna's script
-Filenames.ORD <- list.files(path=paste0(out_path,"/ORD_output/"), pattern="ORD_locus_stats") 
+Filenames.ORD <- list.files(path=ord_path, pattern="ORD_locus_stats") 
 
 for (i in 1:length(Filenames.ORD)) {               
-  sim1 <- read.table(paste0(out_path, "/ORD_output/", Filenames.ORD[[i]]), header = T, sep = " ")
+  sim1 <- read.table(paste0(ord_path, Filenames.ORD[[i]]), header = T, sep = " ")
   sim1 <- sim1[,2:(ncol(sim1)-1)]
 
   #Column names should include: method_software&version_stat_logical(if applicable)
@@ -37,7 +41,7 @@ for (i in 1:length(Filenames.ORD)) {
   cpval_file <- gsub(cpval_file, pattern=".txt$", replacement="")
   
   #Read in Lotterhos Whitlock Cpval file
-  Cpvaltable <- read.table(paste0(base_path, "/SummaryFiles/", cpval_file, "Bayenv2LFMMpca.Cpval"), header = T, sep = " ")
+  Cpvaltable <- read.table(paste0(dryad_path, "/SummaryFiles/", cpval_file, "Bayenv2LFMMpca.Cpval"), header = T, sep = " ")
 
   # Create a lookup table from ordination file
   lookup <- unique(sim1)
@@ -45,7 +49,7 @@ for (i in 1:length(Filenames.ORD)) {
   plyr1 <- join(Cpvaltable, lookup, by = "SNPnames")
 
   #write table to file (should write a total of 72 files)
-  write.table(plyr1, file = paste0(out_path, "concatenated_files/", cpval_file, "Bayenv2LFMMpca.Cpval"), sep = " ", row.names = F)
+  write.table(plyr1, file = paste0(forester_results_path, cpval_file, "_Bayenv2LFMMpca.Cpval"), sep = " ", row.names = F)
 }
 
 
