@@ -254,5 +254,5 @@ dbrda_df <- cbind(id=c(1:nloci), SNPnames=file1$SNPnames[file1$SNPIncluded==TRUE
 rda_final <- cbind(rda_df, dbrda_df[, 3:7], corresponding_file=Filenames.sum[[z]])
 i=Sites.90[j]
 simulation <- file_path_sans_ext(Filenames.lfmm[[i]])
-write.table(emp_total_final, file= paste0(forester_results_path,"ordination_results/", "ORD_locus_stats_", simulation, ".txt"), sep = " ", row.names = F)
+write.table(rda_final, file= paste0(forester_results_path,"ordination_results/", "ORD_locus_stats_", simulation, ".txt"), sep = " ", row.names = F)
 
