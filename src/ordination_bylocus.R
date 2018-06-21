@@ -32,7 +32,7 @@ library(vegan)
 library(tools)
 
 # Specify paths
-root_path <- "/Users/brettford/Desktop/Northeastern/coding/forester_simulation_code/forester_sim_code/TTT_LotterhosWhitlockData/"
+root_path <- "/home/br.ford/br.ford_remote/r_projects/forester_sim_code/TTT_LotterhosWhitlockData/"
 forester_simfiles_path <- paste0(root_path, "forester_simfiles/")
 forester_results_path <- paste0(root_path, "forester_results/")
 
