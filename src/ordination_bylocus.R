@@ -32,8 +32,9 @@ library(vegan)
 library(tools)
 
 # Specify paths
-forester_simfiles_path <- "/Users/brettford/Desktop/Northeastern/coding/forester_simulation_code/forester_sim_code/TTT_LotterhosWhitlockData/forester_simfiles/"
-forester_results_path <- "/Users/brettford/Desktop/Northeastern/coding/forester_simulation_code/forester_sim_code/TTT_LotterhosWhitlockData/forester_results/"
+root_path <- "/Users/brettford/Desktop/Northeastern/coding/forester_simulation_code/forester_sim_code/TTT_LotterhosWhitlockData/"
+forester_simfiles_path <- paste0(root_path, "forester_simfiles/")
+forester_results_path <- paste0(root_path, "forester_results/")
 
 # Specify working directory
 setwd(forester_simfiles_path)
@@ -198,6 +199,7 @@ tmp <- read.table(paste0(forester_simfiles_path, Filenames.lfmm[[i]])) # the gen
 z=Sel.90[j]
 doubleCheck <- identical(unlist(Design[i,]), unlist(Design.sel[z,])) # sanity check that the files match up
 verify <- rbind(verify, doubleCheck)
+print(verify)
 file1 <- read.table(paste0(forester_results_path, Filenames.sum[[z]]), header=T)
 colnames(tmp) <- file1$SNPnames[file1$SNPIncluded==TRUE]
 nloci <- ncol(tmp)   # number of loci; not exactly 10,000 because those with low He were removed
@@ -232,207 +234,25 @@ predictors <- scale(Hab, center=T, scale=T)
 # RDA
 snps.scale <- scale(snps, center=T, scale=T)              # scale and center for RDA
 snp.rda <- rda(snps.scale, predictors, scale=F)           # could also use scale=T instead of scaling beforehand                  
-load.rda <- summary(snp.rda)$species[,1]                  # RDA loadings
+load.rda <- summary(snp.rda)$species[,1:5]                  # RDA loadings
 load.rda_df <- as.data.frame(load.rda)
 
 # dbRDA
 snps.bray <- vegdist(snps, method="bray")                 # bray-curtis for dbRDA
 snp.dbrda <- capscale(snps.bray ~ predictors, comm=snps)  
-load.dbrda <- summary(snp.dbrda)$species[,1]              # dbRDA loadings
+load.dbrda <- summary(snp.dbrda)$species[,1:5]              # dbRDA loadings
 load.dbrda_df <- as.data.frame(load.dbrda)
 
-emp_total <- cbind(id=c(1:nloci), SNPnames=file1$SNPnames[file1$SNPIncluded==TRUE], load.rda_df)
-emp_total_db <- cbind(id=c(1:nloci), SNPnames=file1$SNPnames[file1$SNPIncluded==TRUE], load.dbrda_df)
-load.out <- cbind(load.rda, load.dbrda)  # loadings for RDA and dbRDA
-
-# -----------------------------
-# Power from empirical p-values
-# -----------------------------
-
-# RDA
-neu.ep <- abs(load.rda[1:9900])
-
-sel.ep <- abs(load.rda[9901:nloci])
-
-emp.p_r <- sapply(c(neu.ep,sel.ep), getEmpP, sort(neu.ep))  # p-value from cumulative distribution
-
-emp.p_r <- 1-emp.p_r      # p-value for qvalue
-emp.p_r_df <- as.data.frame(emp.p_r)
-emp_total <- cbind(emp_total, emp.p_r_df)
-
-library(qvalue)
-#source("https://bioconductor.org/biocLite.R")
-#biocLite("qvalue")
-
-emp.q_r <- qvalue(emp.p_r)$qvalues
-emp.q_r_df <- as.data.frame(emp.q_r)
-emp_total <- cbind(emp_total, emp.q_r_df)
-
-#rT.empirical <- as.numeric(names(which(emp.q_r[9901:nloci] < 0.01)))
-#rTP.empirical <- sum(emp.q_r[9901:nloci] < 0.01, na.rm=TRUE)
-#rTPR.empirical <- mean(emp.q_r[9901:nloci] < 0.01, na.rm=TRUE)
-emp_total$emp.p_r_log <- "NA"
-
-for (i in 1:nloci) {
-  if(emp_total[i,5] < 0.01) {
-    emp_total$emp.p_r_log[i] <- "TRUE"
-  }
-  else {
-    emp_total$emp.p_r_log[i] <- "FALSE"
-  }
-}
-
-# dbRDA
-neu.ep <- abs(load.dbrda[1:9900])
-sel.ep <- abs(load.dbrda[9901:nloci])
-
-emp.p_db <- sapply(c(neu.ep,sel.ep), getEmpP, sort(neu.ep))  # p-value from cumulative distribution
-emp.p_db <- 1-emp.p_db         # p-value for qvalue
-emp.p_db_df <- as.data.frame(emp.p_db)
-emp_total_db <- cbind(emp_total_db, emp.p_db_df)
-
-emp.q_db <- qvalue(emp.p_db)$qvalues
-emp.q_db_df <- as.data.frame(emp.q_db)
-emp_total_db <- cbind(emp_total_db, emp.q_db_df)
-#head(emp_total_db)
-#dT.empirical <- as.numeric(names(which(emp.q_db[9901:nloci] < 0.01)))
-#dTP.empirical <- sum(emp.q_db[9901:nloci] < 0.01, na.rm=TRUE)
-#dTPR.empirical <- mean(emp.q_db[9901:nloci] < 0.01, na.rm=TRUE)
-
-emp_total_db$emp.p_db_log <- "NA"
-
-for (i in 1:nloci) {
-  if(emp_total_db[i,5] < 0.01) {
-    emp_total_db$emp.p_db_log[i] <- "TRUE"
-  }
-  else {
-    emp_total_db$emp.p_db_log[i] <- "FALSE"
-  }
-}
-
-# Selection info
-# --------------
-z=Sel.90[j]
-#doubleCheck <- identical(unlist(Design[i,]), unlist(Design.sel[z,]))  # sanity check that the files match up
-#tmp <- read.table(paste0(forester_results_path, Filenames.sum[[z]]), header=T) # the summary file
-#tmp <- tmp[(tmp$IsNeut=="Sel" & tmp$SNPIncluded==TRUE), 5]
-#The above line of code states to subset the data to only include loci under selection (IsNeut=="Sel") and those that are used (IncludeSNP=="TRUE)
-#n.sel <- length(tmp)
-#tmp <- as.data.frame(cbind(c(9901:(9900+n.sel)), tmp))
-#names(tmp) <- c("SNP","Sel")
-
-#sel001 <- tmp[tmp$Sel==0.001, 1]
-#sel005 <- tmp[tmp$Sel==0.005, 1]
-#sel01  <- tmp[tmp$Sel==0.01, 1]
-#sel1   <- tmp[tmp$Sel==0.1, 1]
-
-
-# Levels of selection detected from emp pvalue detections
-# -------------------------------------------------------
-#eTPR001r <- sum(rT.empirical %in% sel001) / length(sel001)
-#eTPR005r <- sum(rT.empirical %in% sel005) / length(sel005)
-#eTPR01r  <- sum(rT.empirical %in% sel01) / length(sel01)
-#eTPR1r   <- sum(rT.empirical %in% sel1) / length(sel1)
-
-#eTPR001d <- sum(dT.empirical %in% sel001) / length(sel001)
-#eTPR005d <- sum(dT.empirical %in% sel005) / length(sel005)
-#eTPR01d  <- sum(dT.empirical %in% sel01) / length(sel01)
-#eTPR1d   <- sum(dT.empirical %in% sel1) / length(sel1)
-
-
-#View(emp_total)
-# ------------------------------
-# Detection levels using cutoffs
-# ------------------------------
-
-# TPR and FPR
-# -----------
-# NOTE: number of neutral loci is always 9900 in these simulations
-
-cand.rda25 <- outliers(load.rda, 2.5)   #2.5
-cand.rda3  <- outliers(load.rda, 3)     #3
-
-cand.dbrda25 <- outliers(load.dbrda,2.5) #2.5
-cand.dbrda3  <- outliers(load.dbrda,3)   #3
-
-emp_total$cand.rda25 <- "NA"
-emp_total$cand.rda3 <- "NA"
-emp_total_db$cand.dbrda25 <- "NA"
-emp_total_db$cand.dbrda3 <- "NA"
-
-for (m in 1:nloci) {
-  if(emp_total[m,1] %in% cand.rda25) {
-    emp_total$cand.rda25[m] <- "TRUE"
-  }
-  else {
-    emp_total$cand.rda25[m] <- "FALSE"
-  }
-}
-
-for (n in 1:nloci) {
-  if(emp_total[n,1] %in% cand.rda3) {
-    emp_total$cand.rda3[n] <- "TRUE"
-  }
-  else {
-    emp_total$cand.rda3[n] <- "FALSE"
-  }
-}
-
-for (o in 1:nloci) {
-  if(emp_total_db[o,1] %in% cand.dbrda25) {
-    emp_total_db$cand.dbrda25[o] <- "TRUE"
-  }
-  else {
-    emp_total_db$cand.dbrda25[o] <- "FALSE"
-  }
-}
-
-for (p in 1:nloci) {
-  if(emp_total_db[p,1] %in% cand.dbrda3) {
-    emp_total_db$cand.dbrda3[p] <- "TRUE"
-  }
-  else {
-    emp_total_db$cand.dbrda3[p] <- "FALSE"
-  }
-}
-
-# Selection levels detected
-# -------------------------
-
-#tp25r <- cand.rda25[cand.rda25 > 9900]
-#tp3r  <- cand.rda3[cand.rda3 > 9900]
-#tp25d <- cand.dbrda25[cand.dbrda25 > 9900]
-#tp3d  <- cand.dbrda3[cand.dbrda3 > 9900]
-#head(emp_total)
-# 2.5 SD results
-#TPR001r25 <- sum(tp25r %in% sel001) / length(sel001)
-#TPR005r25 <- sum(tp25r %in% sel005) / length(sel005)
-#TPR01r25  <- sum(tp25r %in% sel01) / length(sel01)
-#TPR1r25   <- sum(tp25r %in% sel1) / length(sel1)
-
-#TPR001d25 <- sum(tp25d %in% sel001) / length(sel001)
-#TPR005d25 <- sum(tp25d %in% sel005) / length(sel005)
-#TPR01d25  <- sum(tp25d %in% sel01) / length(sel01)
-#TPR1d25   <- sum(tp25d %in% sel1) / length(sel1)
-
-# 3 SD results
-#TPR001r3 <- sum(tp3r %in% sel001) / length(sel001)
-#TPR005r3 <- sum(tp3r %in% sel005) / length(sel005)
-#TPR01r3  <- sum(tp3r %in% sel01) / length(sel01)
-#TPR1r3   <- sum(tp3r %in% sel1) / length(sel1)
-
-#TPR001d3 <- sum(tp3d %in% sel001) / length(sel001)
-#TPR005d3 <- sum(tp3d %in% sel005) / length(sel005)
-#TPR01d3  <- sum(tp3d %in% sel01) / length(sel01)
-#TPR1d3   <- sum(tp3d %in% sel1) / length(sel1)
+# Create dataframes for rda and dbrda with SNPnames
+rda_df <- cbind(id=c(1:nloci), SNPnames=file1$SNPnames[file1$SNPIncluded==TRUE], load.rda_df)
+dbrda_df <- cbind(id=c(1:nloci), SNPnames=file1$SNPnames[file1$SNPIncluded==TRUE], load.dbrda_df)
 
 # -----------------
 # Write out results
 # -----------------
 
-emp_total_final <- cbind(emp_total, emp_total_db[, 3:8], corresponding_file=Filenames.sum[[z]])
+rda_final <- cbind(rda_df, dbrda_df[, 3:7], corresponding_file=Filenames.sum[[z]])
 i=Sites.90[j]
 simulation <- file_path_sans_ext(Filenames.lfmm[[i]])
-write.table(emp_total_final, file= paste0(forester_results_path,"ordination_results", "/ORD_locus_stats_", simulation, ".txt"), sep = " ", row.names = F)
-j= as.numeric(seed)
-write.table(verify, file= paste0(forester_results_path,"ordination_results/", j, "verifying_match.txt"), sep = " ", row.names =F)
+write.table(emp_total_final, file= paste0(forester_results_path,"ordination_results/", "ORD_locus_stats_", simulation, ".txt"), sep = " ", row.names = F)
+
