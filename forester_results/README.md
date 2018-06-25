@@ -4,4 +4,4 @@ The Cpval files in this directory are a combination of the results obtained from
 
 Column naming convention for statistics from different methods:
 
-analysis_package&version_method (rda_veganv2.4-3_loading)
+analysis_package&version_method (e.g., rda_veganv2.4-3_loading)
