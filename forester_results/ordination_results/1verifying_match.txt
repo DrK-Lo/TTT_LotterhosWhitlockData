@@ -1,4 +1,0 @@
-"V1"
-"Do the files match?"
-"TRUE"
-"TRUE"
