@@ -32,7 +32,7 @@ library(vegan)
 library(tools)
 
 # Specify paths
-root_path <- "/Users/brettford/Desktop/Northeastern/coding/forester_simulation_code/forester_sim_code/TTT_LotterhosWhitlockData/"
+root_path <- "/home/br.ford/br.ford_remote/r_projects/forester_sim_code/TTT_LotterhosWhitlockData/"
 forester_simfiles_path <- paste0(root_path, "forester_simfiles/")
 forester_results_path <- paste0(root_path, "forester_results/")
 
@@ -252,6 +252,10 @@ dbrda_df <- cbind(id=c(1:nloci), SNPnames=file1$SNPnames[file1$SNPIncluded==TRUE
 # ------------------
 
 rda_final <- cbind(rda_df, dbrda_df[, 3:7], corresponding_file=Filenames.sum[[z]])
+colnames(rda_final) <- c("id", "SNPnames", "rda_veganv2.4-3_axis1loading", "rda_veganv2.4-3_PC1", "rda_veganv2.4-3_PC2", "rda_veganv2.4-3_PC3",
+				"rda_veganv2.4-3_PC4", "dbrda_veganv2.4-3_axis1loading", "dbrda_veganv2.4-3_MDS1", "dbrda_veganv2.4-3_MDS2", 
+				"dbrda_veganv2.4-3_MDS3", "dbrda_veganv2.4-3_MDS4", "corresponding_file") 
+                               
 i=Sites.90[j]
 simulation <- file_path_sans_ext(Filenames.lfmm[[i]])
 write.table(rda_final, file= paste0(forester_results_path,"ordination_results/", "ORD_locus_stats_", simulation, ".txt"), sep = " ", row.names = F)

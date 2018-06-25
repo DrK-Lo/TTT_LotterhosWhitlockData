@@ -15,13 +15,14 @@ set -o pipefail
 #
 #######################################################################################
 
-# Specify directory
-mypath="/Users/brettford/Desktop/Northeastern/coding/forester_simulation_code/forester_sim_code/TTT_LotterhosWhitlockData/src"
+# Specify directories
+mypath="/home/br.ford/br.ford_remote/r_projects/forester_sim_code/TTT_LotterhosWhitlockData/src"
+outpath="/home/br.ford/br.ford_remote/r_projects/forester_sim_code/TTT_LotterhosWhitlockData/forester_results"
 cd $mypath
 
-#Run across 60 nodes
-start=1
-finish=60
+#Run across 36 processors
+start=55
+finish=72
 echo $start $finish
 
 
@@ -32,6 +33,6 @@ echo "Running R scripts"
 for i in $(seq $start $finish)
 do
         echo $i
-        Rscript --vanilla ordination_bylocus.R ${i} > ${mypath}"/R_out/"${i}"_ORD_R.out" 2> ${mypath}"/R_error/"${i}"_ORD_R.error" & echo $!
+        Rscript --vanilla ordination_bylocus.R ${i} > ${outpath}"/R_out/"${i}"_ORD_R.out" 2> ${outpath}"/R_error/"${i}"_ORD_R.error" & echo $!
         sleep 1m
 done
