@@ -3,4 +3,6 @@ The code randomizes genotypes to get desired allele frequencies for populations,
 
 Each simulation has a genotypes files (here in \.lfmm format) and an environment file (here in \.env format), which gives the environmental value for each individual.
 
+The **\*EnviMat\*** files are replicate matrices of the same environmental variable with small variational differences.
+
 The R code requires the data from the Lotterhos and Whitlock 2015 (http://dx.doi.org/10.5061/dryad.mh67v) and Wagner et al. 2017 (http://dx.doi.org/10.5061/dryad.b12kk) on Dryad.
