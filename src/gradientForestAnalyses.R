@@ -3,7 +3,7 @@
 #library(devtools)
 #install_github("whitlock/OutFLANK")
 
-library(LEA)
+#library(LEA)
 library(adegenet)
 library(gdm)
 library(gradientForest)
@@ -19,13 +19,17 @@ library(modEvA)
 library(ggplot2)
 library(grid)
 library(gridExtra)
+library(gtools)
 ################################################################################
 
 
 # FUNCTIONS & SOURCED SCRIPTS --------------------------------------------------
 #gfOutObj <- setClass("gfOutObj", slots = c(alFreq="data.frame", imp="list"))
 
-source("/Users/mfitzpatrick/code/plantGenome/FstByRowtoGDMmatrices.R")
+# Helper functions for Generalized Diss. Models
+# Work in progress ignore for now
+# source("/Users/mfitzpatrick/code/plantGenome/FstByRowtoGDMmatrices.R")
+
 
 #####
 # function to calculate pop-level allele counts / frequencies
@@ -43,6 +47,7 @@ alleleDat <- function(alleleTab, popSize, numPops){
   return(list(ifelse(1-(mat/popSize)<0.5, 1-(mat/popSize), mat/popSize), mat))}
 #####
 
+
 #####
 # function to create a matrix for each locus of the counts of each 
 # allele (columns) in each population (rows)
@@ -50,6 +55,7 @@ buildMats <- function(counts, popSize){
   bMat <- cbind(counts, popSize-counts)
   return(bMat)}
 #####
+
 
 #####
 # function to calculate population pairwise Fst for a single locus
@@ -62,18 +68,20 @@ pwFst <- function(tab, numPops, ind1, ind2){
   return(upperTriangle(mat, diag=F))}
 #####
 
-#####
+
+##### GDM function - ognore for now
 # Function to add genetic distance to site-pair, remove NAs, and scale if desired.
 # Scaling can improve model fitting in some instances by increasing the range 
 # of Fst values.
-finalPrepFst <-  function(x, sitePair, scale=F){
-  fst <- sitePair 
-  fst$distance <- x
-  fst <- na.omit(fst)
-  if(scale==T){
-    return(scaleDist(fst)) # function sourced from above
-  } else {return(fst)}}
+# finalPrepFst <-  function(x, sitePair, scale=F){
+#   fst <- sitePair 
+#   fst$distance <- x
+#   fst <- na.omit(fst)
+#   if(scale==T){
+#     return(scaleDist(fst)) # function sourced from above
+#   } else {return(fst)}}
 #####
+
 
 #####
 # build output GF data frames
@@ -108,29 +116,45 @@ gfR2tab <- function(gfMods.list, alFreqs){
 ################################################################################
 
 
+####### START PREP DATA AND RUN GF #############################################
 # Load and prep data (env, allelic) ---------------------------------------
+# number of cores to use for parallel processing
 cores <- 11
 
 # "background" environment
-bgEnv <- read.table(paste(getwd(),"/results_AdaptreeEnviFor_R90.txt", sep="")) 
+# this file is currently in the old repo
+# need to check if it is to be used with new forester sims?
+bgEnv <- read.table("/Volumes/localDrobo/Projects/activeProjects/testingTheTests/fitzLab-AL_TTT_LotterhosWhitlockData/results_AdaptreeEnviFor_R90.txt") 
 
 # sims
-simFiles <- list.files(path=paste(getwd(), "/simfiles", sep=""), full.names=T)
+# same comment as for bgEMV file above, currently using old sims
+# simFiles <- list.files(path=paste(getwd(), "/simfiles", sep=""), full.names=T)
+simFiles <- list.files(path="/Volumes/localDrobo/Projects/activeProjects/testingTheTests/fitzLab-AL_TTT_LotterhosWhitlockData/simfiles",
+                       full.names=T)
 simIDs <- unique(sapply(strsplit(sapply(strsplit(simFiles, "_NumPops"), function(x){
   x[1]}), "/simfiles/", fixed=T), function(x){
     x[2]}))
 
+# for testing lapply function below
 #simID <- simIDs[1]
 
-# lapply through each simulation to prep data, run GF, and write results to file
+# lapply through each simulation
+# Steps are:
+# 1. Prep data for GF
+# 2. Fit GF models to each simulation
+# 3/ Write results to file
 lapply(simIDs, function(simID){
   # x-y and environment
   sim <- simFiles[grep(simID, simFiles)]
   
-  cpVal <- read.table(list.files(path=paste(getwd(), "/results", sep=""), 
+  #cpVal <- read.table(list.files(path=paste(getwd(), "/results", sep=""), 
+  #                               pattern=simID, full.names=T), header=T)
+  # Need to update to new forester sim folder, using old for now
+  cpVal <- read.table(list.files(path="/Volumes/localDrobo/Projects/activeProjects/testingTheTests/fitzLab-AL_TTT_LotterhosWhitlockData/results", 
                                  pattern=simID, full.names=T), header=T)
   cpVal <- subset(cpVal, UseSNP==TRUE)
   
+  # env gradient(s)
   envSelect <- read.table(sim[grep("env", sim)])
   names(envSelect) <- "envSelect"
   
@@ -140,6 +164,7 @@ lapply(simIDs, function(simID){
   allelic <- fread(sim[grep("lfmm", sim)], header=F, data.table=F)
   #allelic <- allelic[,cpVal$SNPIncluded]
   
+  # create character name for SNPs
   snpID <- paste("S", row.names(cpVal), sep="")#paste("X", cpVal$SNPnames, sep="")
   names(allelic) <- snpID
   
@@ -152,6 +177,7 @@ lapply(simIDs, function(simID){
   # build data tables for individuals & populations
   datInd <- data.frame(popID=popID, envSelect=envSelect, allelic)
   
+  # aggregate to population-level allele freqs
   datPop <- aggregate(. ~ popID+envSelect, data=datInd, FUN=function(x, popSize){
     sum(x)/popSize}, popSize=popSize)
   alFreq <- datPop[,-c(1, 2)] #"popID", "envSelect"
@@ -162,67 +188,93 @@ lapply(simIDs, function(simID){
   envPop <- data.frame(envSelect = datPop$envSelect)
   #envInd <- envPop[match(datInd$envSelect, envPop$envSelect),]
   
-  # Minor allele frequencies using GF
-  # fit gf model to each SNP individually
+  ##############################################
+  # Chunk to fit GF models to minor allele frequencies at the level of
+  # populations
+  # GF is fit to each SNP individually to 
+  # ease computational / memory burden
   print(paste("Minor allele freq", simID, sep="::"))
   cl <- makeCluster(cores)
   registerDoParallel(cl)
   
+  # use for each to run in parallel - each SNP modeled by GF on different
+  # processor
   gfAllele.freq <- foreach(k=1:ncol(alFreq), .verbose=F, .packages=c("gradientForest", "data.table")) %dopar% {
-                            locus <- data.frame(alFreq[,k])
-                            names(locus) <- colnames(alFreq)[k]
-                             
-                            gfLocus <- gradientForest(data.frame(envPop, locus),
-                                                       predictor.vars=colnames(envPop), 
-                                                       response.vars=colnames(alFreq)[k], 
-                                                       corr.threshold=0.5, ntree=500, trace=F)
-                             if(!is.null(gfLocus)){
-                               cImp <- cumimp(gfLocus, "envSelect", type="Species")
-                               cImp <- data.frame(rbindlist(cImp, idcol="allele"))
-                               data.frame(cImp, r2=gfLocus$result)
-                             }
-                           }
+    # get locus k & name with SNP ID
+    locus <- data.frame(alFreq[,k])
+    names(locus) <- colnames(alFreq)[k]
+    
+    # here's the GF modeling function
+    gfLocus <- gradientForest(data=data.frame(envPop, locus),
+                              predictor.vars=colnames(envPop), 
+                              response.vars=colnames(alFreq)[k], 
+                              corr.threshold=0.5, 
+                              ntree=500, 
+                              trace=F)
+    
+    # get result is the model is not = NULL (no fit)
+    if(!is.null(gfLocus)){
+      # cumulative importance values (to plot turnover functions)
+      cImp <- cumimp(gfLocus, "envSelect", type="Species")
+      cImp <- data.frame(rbindlist(cImp, idcol="allele"))
+      # return data frame with allele ID, cumulative importance results,
+      # and R2 value for GF model
+      data.frame(cImp, r2=gfLocus$result)
+    }
+  }
   stopCluster(cl)
+  ##############################################
   
-  # fit individual GF models by locus.
+  ##############################################
+  # Chunk to fit GF models to allele presence / absence at the level of
+  # individuals
   print(paste("Presence-Absence", simID, sep="::"))
   
   # Allele presence-absence using GF
-  # Need to change 0/1 to factor for classification (otherwise defaults to regression) 
+  # Need to change 0/1 to factor for classification 
+  # (otherwise defaults to regression) 
   allelic <- apply(allelic, 2, factor)
+  # create dummy variable to avoid error in GF fitting 
   dummyEnv <- runif(length(envSelect[,1]), -0.001, 0.001)
   envInd <- data.frame(envSelect=envSelect, dummyEnv=dummyEnv)
+  #envInd <- data.frame(envSelect=envSelect)
   
+  # same as for MAF above, but now for allele pa/
   cl <- makeCluster(cores)
   registerDoParallel(cl)
   
   gfAllele.pa <- foreach(k=1:ncol(allelic), .verbose=F, .packages=c("gradientForest", "data.table")) %dopar%{
-                            locus <- data.frame(allelic[,k])
-                            names(locus) <- colnames(allelic)[k]
+    locus <- data.frame(allelic[,k])
+    names(locus) <- colnames(allelic)[k]
     
-                            gfLocus <- gradientForest(data.frame(envInd, locus),
-                                                      predictor.vars=colnames(envInd), 
-                                                      response.vars=colnames(allelic)[k], 
-                                                      corr.threshold=0.5, ntree=500, trace=F)
+    gfLocus <- gradientForest(data=data.frame(envInd, locus),
+                              predictor.vars=colnames(envInd), 
+                              response.vars=colnames(allelic)[k], 
+                              corr.threshold=0.5, 
+                              ntree=500, 
+                              trace=F)
     
-                              if(!is.null(gfLocus)){
-                                cImp <- cumimp(gfLocus, "envSelect", type="Species")
-                                cImp <- data.frame(rbindlist(cImp, idcol="allele"))
-                                data.frame(cImp, r2=gfLocus$result)
-                              }
-                            }
+    if(!is.null(gfLocus)){
+      cImp <- cumimp(gfLocus, "envSelect", type="Species")
+      cImp <- data.frame(rbindlist(cImp, idcol="allele"))
+      data.frame(cImp, r2=gfLocus$result)
+    }
+  }
   stopCluster(cl)
   
   # find outliers for Allele freq GFs
-  # table of importance values for each SNP (rows) and each var (columns)
+  # first prep table of importance values for each SNP (rows) 
+  # and each var (columns)
   gfAF <- lapply(gfAllele.freq, function(x){
     if(!is.null(x)){
     ttt <- x[1,c("r2", "allele")]
     return(data.frame(imps=ttt$r2, SNP=ttt$allele, row.names = "envSelect",
                       stringsAsFactors=F))}})
   
+  # run function to convert to table # then write to file
   gfAllele.R2.af <- gfR2tab(gfAF, alFreq)
-  
+  gfAllele.R2.af <- gfAllele.R2.af[match(mixedsort(gfAllele.R2.af$SNP), 
+                                         gfAllele.R2.af$SNP),]
   write.csv(gfAllele.R2.af, paste(getwd(), "/gradientForestResults/gfResults_alleleFreq_", simID, ".csv", sep=""), 
             row.names=F)
   
@@ -234,11 +286,14 @@ lapply(simIDs, function(simID){
       return(data.frame(imps=ttt$r2, SNP=ttt$allele, row.names = "envSelect",
                         stringsAsFactors=F))}})
   
+  # run function to convert to table # then write to file
   gfAllele.R2.pa <- gfR2tab(gfPA, alFreq)
-  
+  gfAllele.R2.pa <- gfAllele.R2.pa[match(mixedsort(gfAllele.R2.pa$SNP), 
+                                         gfAllele.R2.pa$SNP),]
   write.csv(gfAllele.R2.pa, paste(getwd(), "/gradientForestResults/gfResults_PresAbs_", simID, ".csv", sep=""), 
             row.names=F)
   
+  ######## PLOTTING ##################
   ##### plot cImp for MAF models #####
   impDatList <- gfAllele.freq[unlist(lapply(gfAllele.freq, function(x){!is.null(x)}))]
   impDat <- do.call(rbind, impDatList)
@@ -316,10 +371,10 @@ lapply(simIDs, function(simID){
   ggsave(paste(getwd(), "/gradientForestResults/facetPA_cImp_", simID, ".png", sep=""), 
                  device="png", width = 16, height = 10, units = "in", dpi=300, p.imp)
 })
-################################################################################
+####### END PREP DATA AND RUN GF ###############################################
 
 
-################################################################################
+########## START MODEL EVALUATION ##############################################
 # sims
 simFiles <- list.files(path=paste(getwd(), "/simfiles", sep=""), full.names=T)
 simIDs <- unique(sapply(strsplit(sapply(strsplit(simFiles, "_NumPops"), function(x){
@@ -398,6 +453,7 @@ gfAUC <- function(simID){
   ggsave(paste(getwd(), "/gradientForestResults/AUC_", simID, ".pdf", sep=""), 
          width = 16, height = 10, units = "in", dpi=300)
 }
+########## END MODEL EVALUATION ####################################################
 
 
 
