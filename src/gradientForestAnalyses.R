@@ -69,7 +69,7 @@ pwFst <- function(tab, numPops, ind1, ind2){
 #####
 
 
-##### GDM function - ognore for now
+##### GDM function - ignore for now
 # Function to add genetic distance to site-pair, remove NAs, and scale if desired.
 # Scaling can improve model fitting in some instances by increasing the range 
 # of Fst values.
@@ -92,7 +92,7 @@ gfR2tab <- function(gfMods.list, alFreqs){
   vrNm <- rep(row.names(tab)[1:nrow(gfMods.list[[i]])], 
               nrow(tab)/nrow(gfMods.list[[i]]))
   tab <- data.frame(variable=vrNm, tab)
-  tab <- dcast(tab, SNP~variable, value.var="imps")
+  tab <- dcast(tab, SNPnames~variable, value.var="imps")
   envR2 <- rowSums(data.frame(tab[,-1]))
   R2Tab <- data.frame(tab, envR2=envR2)
   
@@ -106,12 +106,10 @@ gfR2tab <- function(gfMods.list, alFreqs){
   
   noGF <- data.frame(matrix(0, nrow=length(negR2), ncol=ncol(R2Tab)))
   colnames(noGF) <- colnames(R2Tab)           
-  noGF$SNP <- negR2
+  noGF$SNPnames <- negR2
   
   R2Tab <- rbind(R2Tab, noGF)
-  #snpID <- sapply(strsplit(as.character(R2Tab$SNP), "V"),function(x){as.numeric(x[2])})
-  #R2Tab$SNP <- snpID
-  return(R2Tab[order(R2Tab$SNP),])}
+  return(R2Tab[order(R2Tab$SNPnames),])}
 #####
 ################################################################################
 
@@ -127,13 +125,15 @@ cores <- 11
 bgEnv <- read.table("/Volumes/localDrobo/Projects/activeProjects/testingTheTests/fitzLab-AL_TTT_LotterhosWhitlockData/results_AdaptreeEnviFor_R90.txt") 
 
 # sims
-# same comment as for bgEMV file above, currently using old sims
-# simFiles <- list.files(path=paste(getwd(), "/simfiles", sep=""), full.names=T)
-simFiles <- list.files(path="/Volumes/localDrobo/Projects/activeProjects/testingTheTests/fitzLab-AL_TTT_LotterhosWhitlockData/simfiles",
+# Updated to new forester sim folder 11/28/18
+simFiles <- list.files(path="/Volumes/localDrobo/Projects/activeProjects/testingTheTests/fitzLab-AL_TTT_LotterhosWhitlockData/forester_simfiles",
                        full.names=T)
 simIDs <- unique(sapply(strsplit(sapply(strsplit(simFiles, "_NumPops"), function(x){
-  x[1]}), "/simfiles/", fixed=T), function(x){
+  x[1]}), "/forester_simfiles/", fixed=T), function(x){
     x[2]}))
+
+simIDs <- simIDs[-grep(".txt", simIDs)]
+simIDs <- simIDs[-grep("README.md", simIDs)]
 
 # for testing lapply function below
 #simID <- simIDs[1]
@@ -143,16 +143,22 @@ simIDs <- unique(sapply(strsplit(sapply(strsplit(simFiles, "_NumPops"), function
 # 1. Prep data for GF
 # 2. Fit GF models to each simulation
 # 3/ Write results to file
-lapply(simIDs, function(simID){
+lapply(simIDs, function(simID, numInds=c(20, 6)){
   # x-y and environment
   sim <- simFiles[grep(simID, simFiles)]
   
-  #cpVal <- read.table(list.files(path=paste(getwd(), "/results", sep=""), 
-  #                               pattern=simID, full.names=T), header=T)
-  # Need to update to new forester sim folder, using old for now
-  cpVal <- read.table(list.files(path="/Volumes/localDrobo/Projects/activeProjects/testingTheTests/fitzLab-AL_TTT_LotterhosWhitlockData/results", 
-                                 pattern=simID, full.names=T), header=T)
-  cpVal <- subset(cpVal, UseSNP==TRUE)
+  # simulations with either 20 or 6 individuals
+  # select using numInds argument
+  sim <- sim[grep(paste0("NumInd=", numInds), sim)]
+  
+  # Updated to new forester sim folder 11/28/18
+  # read in cpVal table
+  cpValFile <- list.files(path="/Volumes/localDrobo/Projects/activeProjects/testingTheTests/fitzLab-AL_TTT_LotterhosWhitlockData/forester_results", 
+                          pattern=simID, full.names=T)
+  cpValFile <- cpValFile[grep(numInds, cpValFile)]
+  cpVal <- read.table(cpValFile, header=T) #should always have 10000 loci
+  # select only those included (I think becuase some go to fixation...)
+  cpVal.use <- subset(cpVal, SNPIncluded==TRUE)
   
   # env gradient(s)
   envSelect <- read.table(sim[grep("env", sim)])
@@ -162,15 +168,15 @@ lapply(simIDs, function(simID){
   # columns = loci
   # rows = total # of individuals (#populations x #inds sampled)
   allelic <- fread(sim[grep("lfmm", sim)], header=F, data.table=F)
-  #allelic <- allelic[,cpVal$SNPIncluded]
+  #allelic <- allelic[,cpVal.use$SNPIncluded]
   
   # create character name for SNPs
-  snpID <- paste("S", row.names(cpVal), sep="")#paste("X", cpVal$SNPnames, sep="")
+  snpID <- paste0("S", cpVal.use$SNPnames) #paste("S", row.names(cpVal.use), sep="")
   names(allelic) <- snpID
   
   # data stats - used for indexing, etc
-  popSize <- nrow(allelic)/nrow(bgEnv)
-  numPops <- nrow(bgEnv)
+  popSize <- nrow(allelic)/nrow(unique(envSelect))#nrow(bgEnv)
+  numPops <- nrow(unique(envSelect))
   
   popID <- sort(rep(1:numPops, popSize))
   
@@ -181,12 +187,8 @@ lapply(simIDs, function(simID){
   datPop <- aggregate(. ~ popID+envSelect, data=datInd, FUN=function(x, popSize){
     sum(x)/popSize}, popSize=popSize)
   alFreq <- datPop[,-c(1, 2)] #"popID", "envSelect"
-  # envPop <- data.frame(popID=bgEnv[,1], x=bgEnv$X_Pops, y=bgEnv$Y_Pops,
-  #                        envSelect=unique(envSelect), bgEnv[,8:27])
-  # envPop <- envPop[order(envPop$envSelect),]
-  
+
   envPop <- data.frame(envSelect = datPop$envSelect)
-  #envInd <- envPop[match(datInd$envSelect, envPop$envSelect),]
   
   ##############################################
   # Chunk to fit GF models to minor allele frequencies at the level of
@@ -225,6 +227,27 @@ lapply(simIDs, function(simID){
   stopCluster(cl)
   ##############################################
   
+  # Prep table of importance values for each SNP (rows) 
+  # and each var (columns)
+  gfAF <- lapply(gfAllele.freq, function(x){
+    if(!is.null(x)){
+      ttt <- x[1,c("r2", "allele")]
+      return(data.frame(imps=ttt$r2, SNPnames=ttt$allele, row.names = "envSelect",
+                        stringsAsFactors=F))}})
+  
+  # run function to convert to table # then write to file
+  gfAllele.R2.af <- gfR2tab(gfAF, alFreq)
+  gfAllele.R2.af <- gfAllele.R2.af[match(mixedsort(gfAllele.R2.af$SNPnames), 
+                                         gfAllele.R2.af$SNPnames),]
+  gfAllele.R2.af$SNPnames <- gsub("S", "", gfAllele.R2.af$SNPnames)
+  
+  notUsed <- cpVal$SNPnames[which((cpVal$SNPnames %in% gfAllele.R2.af$SNPnames)==FALSE)]
+  binder <- gfAllele.R2.af[1:length(notUsed),]
+  binder[] <- NA
+  binder[,1] <- notUsed
+  gfAllele.R2.af <- rbind(binder, gfAllele.R2.af)
+  gfAllele.R2.af <- gfAllele.R2.af[match(cpVal$SNPnames, gfAllele.R2.af$SNPnames),]
+
   ##############################################
   # Chunk to fit GF models to allele presence / absence at the level of
   # individuals
@@ -261,116 +284,116 @@ lapply(simIDs, function(simID){
     }
   }
   stopCluster(cl)
+  ##############################################
   
-  # find outliers for Allele freq GFs
-  # first prep table of importance values for each SNP (rows) 
-  # and each var (columns)
-  gfAF <- lapply(gfAllele.freq, function(x){
-    if(!is.null(x)){
-    ttt <- x[1,c("r2", "allele")]
-    return(data.frame(imps=ttt$r2, SNP=ttt$allele, row.names = "envSelect",
-                      stringsAsFactors=F))}})
-  
-  # run function to convert to table # then write to file
-  gfAllele.R2.af <- gfR2tab(gfAF, alFreq)
-  gfAllele.R2.af <- gfAllele.R2.af[match(mixedsort(gfAllele.R2.af$SNP), 
-                                         gfAllele.R2.af$SNP),]
-  write.csv(gfAllele.R2.af, paste(getwd(), "/gradientForestResults/gfResults_alleleFreq_", simID, ".csv", sep=""), 
-            row.names=F)
-  
-  # find outliers for Allele pres-abs GFs
   # table of importance values for each SNP (rows) and each var (columns)
+  # run function to convert to table # then write to file
   gfPA <- lapply(gfAllele.pa, function(x){
     if(!is.null(x)){
-      ttt <- x[1, c("r2", "allele")]
-      return(data.frame(imps=ttt$r2, SNP=ttt$allele, row.names = "envSelect",
+      ttt <- x[1,c("r2", "allele")]
+      return(data.frame(imps=ttt$r2, SNPnames=ttt$allele, row.names = "envSelect",
                         stringsAsFactors=F))}})
   
   # run function to convert to table # then write to file
   gfAllele.R2.pa <- gfR2tab(gfPA, alFreq)
-  gfAllele.R2.pa <- gfAllele.R2.pa[match(mixedsort(gfAllele.R2.pa$SNP), 
-                                         gfAllele.R2.pa$SNP),]
-  write.csv(gfAllele.R2.pa, paste(getwd(), "/gradientForestResults/gfResults_PresAbs_", simID, ".csv", sep=""), 
+  gfAllele.R2.pa <- gfAllele.R2.pa[match(mixedsort(gfAllele.R2.pa$SNPnames), 
+                                         gfAllele.R2.pa$SNPnames),]
+  gfAllele.R2.pa$SNPnames <- gsub("S", "", gfAllele.R2.pa$SNPnames)
+  
+  gfAllele.R2.pa <- rbind(binder, gfAllele.R2.pa)
+  gfAllele.R2.pa <- gfAllele.R2.pa[match(cpVal$SNPnames, gfAllele.R2.pa$SNPnames),]
+  
+  finalOut <- data.frame(SNPnames=gfAllele.R2.af$SNPnames, 
+                         #cImp.envSelect.alleleFreq=gfAllele.R2.af$envSelect,
+                         r_squared.alleleFreq=gfAllele.R2.af$envR2,
+                         #cImp.envSelect.allelePres_Abs=gfAllele.R2.pa$envSelect,
+                         r_squared.allelePres_Abs=gfAllele.R2.pa$envR2)
+  
+  
+  write.table(finalOut, 
+            paste0(getwd(), "/forester_results/", strsplit(strsplit(sim[1], ".env")[[1]][1], "forester_simfiles/")[[1]][2],
+                   "_gradientforests.Cpval"), 
             row.names=F)
   
-  ######## PLOTTING ##################
-  ##### plot cImp for MAF models #####
-  impDatList <- gfAllele.freq[unlist(lapply(gfAllele.freq, function(x){!is.null(x)}))]
-  impDat <- do.call(rbind, impDatList)
   
-  x <- sort(unique(envSelect)[,1])
-  
-  ggCand <- impDat 
-  strSel <- factor(cpVal$s_high[match(ggCand$allele, paste("S", row.names(cpVal), sep=""))])
-  
-  ggCand <- data.frame(ggCand, strSel)
-  
-  snpID[cpVal$IsNeut=="Sel"]
-  ggCand <- data.frame(ggCand, isNeut=as.character(cpVal$IsNeut[match(ggCand$allele, paste("X", cpVal$SNPnames, sep=""))]))
-  
-   maxs <- NULL
-  maxs[1] <- max(impDatList[[1]]$y)
-  for(j in 2:length(impDatList)){
-    maxs[j] <- max(impDatList[[j]]$y)    
-  }
-  
-  p.imp <- ggplot() + geom_line(data=ggCand, aes(x=x, y=y, group=allele),
-                                colour=rgb(0,0,0,0.4), lwd=0.5) + 
-    facet_grid(. ~ strSel) +
-    labs(y="Cumulative Importance", x="Environment") +
-    
-    #ylim(0, max(maxs)*1.2) +
-    theme(plot.margin = unit(c(1.25,1.25,1.25,1.25), "in")) + 
-    theme_bw() + 
-    theme(axis.text.x = element_text(size = 18, colour = "grey60"), 
-          axis.title.x = element_text(size=24)) + 
-    theme(axis.text.y = element_text(size = 16, colour = "grey60"), 
-          axis.title.y = element_text(size=24, vjust=1)) + 
-    theme(strip.text = element_text(size=16))
-  
-  ggsave(paste(getwd(), "/gradientForestResults/facetMAF_cImp_", simID, ".png", sep=""), 
-         device="png", width = 16, height = 10, units = "in", dpi=300, p.imp)
-  
-  ##### plot cImp for PAF models #####
-  impDatList <- gfAllele.pa[unlist(lapply(gfAllele.pa, function(x){!is.null(x)}))]
-  impDat <- do.call(rbind, impDatList)
-  
-  x <- sort(unique(envSelect)[,1])
-  
-  ggCand <- impDat #rbind(ttt, nnn)
-  strSel <- factor(cpVal$s_high[match(ggCand$allele, paste("S", row.names(cpVal), sep=""))])
-  
-  ggCand <- data.frame(ggCand, strSel)
-  
-  snpID[cpVal$IsNeut=="Sel"]
-  ggCand <- data.frame(ggCand, isNeut=as.character(cpVal$IsNeut[match(ggCand$allele, paste("X", cpVal$SNPnames, sep=""))]))
-  
-  #ggCand$colorSNP <- as.character(ggCand$colorSNP)
-  #ggCand$colorSNP[ggCand$allele %in% paste("V", 9900:10000, sep="")] <- "red"
-  
-  maxs <- NULL
-  maxs[1] <- max(impDatList[[1]]$y)
-  for(j in 2:length(impDatList)){
-    maxs[j] <- max(impDatList[[j]]$y)    
-  }
-  
-  p.imp <- ggplot() + geom_line(data=ggCand, aes(x=x, y=y, group=allele),
-                                colour=rgb(0,0,0,0.4), lwd=0.5) + 
-    facet_grid(. ~ strSel) +
-    labs(y="Cumulative Importance", x="Environment") +
-    
-    #ylim(0, max(maxs)*1.2) +
-    theme(plot.margin = unit(c(1.25,1.25,1.25,1.25), "in")) + 
-    theme_bw() + 
-    theme(axis.text.x = element_text(size = 18, colour = "grey60"), 
-          axis.title.x = element_text(size=24)) + 
-    theme(axis.text.y = element_text(size = 16, colour = "grey60"), 
-          axis.title.y = element_text(size=24, vjust=1)) + 
-    theme(strip.text = element_text(size=16))
-  
-  ggsave(paste(getwd(), "/gradientForestResults/facetPA_cImp_", simID, ".png", sep=""), 
-                 device="png", width = 16, height = 10, units = "in", dpi=300, p.imp)
-})
+#   ######## PLOTTING ##################
+#   ##### plot cImp for MAF models #####
+#   impDatList <- gfAllele.freq[unlist(lapply(gfAllele.freq, function(x){!is.null(x)}))]
+#   impDat <- do.call(rbind, impDatList)
+#   
+#   x <- sort(unique(envSelect)[,1])
+#   
+#   ggCand <- impDat 
+#   strSel <- factor(cpVal.use$s_high[match(ggCand$allele, paste("S", row.names(cpVal.use), sep=""))])
+#   
+#   ggCand <- data.frame(ggCand, strSel)
+#   
+#   snpID[cpVal.use$IsNeut=="Sel"]
+#   ggCand <- data.frame(ggCand, isNeut=as.character(cpVal.use$IsNeut[match(ggCand$allele, paste("X", cpVal.use$SNPnames, sep=""))]))
+#   
+#    maxs <- NULL
+#   maxs[1] <- max(impDatList[[1]]$y)
+#   for(j in 2:length(impDatList)){
+#     maxs[j] <- max(impDatList[[j]]$y)    
+#   }
+#   
+#   p.imp <- ggplot() + geom_line(data=ggCand, aes(x=x, y=y, group=allele),
+#                                 colour=rgb(0,0,0,0.4), lwd=0.5) + 
+#     facet_grid(. ~ strSel) +
+#     labs(y="Cumulative Importance", x="Environment") +
+#     
+#     #ylim(0, max(maxs)*1.2) +
+#     theme(plot.margin = unit(c(1.25,1.25,1.25,1.25), "in")) + 
+#     theme_bw() + 
+#     theme(axis.text.x = element_text(size = 18, colour = "grey60"), 
+#           axis.title.x = element_text(size=24)) + 
+#     theme(axis.text.y = element_text(size = 16, colour = "grey60"), 
+#           axis.title.y = element_text(size=24, vjust=1)) + 
+#     theme(strip.text = element_text(size=16))
+#   
+#   ggsave(paste(getwd(), "/gradientForestResults/facetMAF_cImp_", simID, ".png", sep=""), 
+#          device="png", width = 16, height = 10, units = "in", dpi=300, p.imp)
+#   
+#   ##### plot cImp for PAF models #####
+#   impDatList <- gfAllele.pa[unlist(lapply(gfAllele.pa, function(x){!is.null(x)}))]
+#   impDat <- do.call(rbind, impDatList)
+#   
+#   x <- sort(unique(envSelect)[,1])
+#   
+#   ggCand <- impDat #rbind(ttt, nnn)
+#   strSel <- factor(cpVal.use$s_high[match(ggCand$allele, paste("S", row.names(cpVal.use), sep=""))])
+#   
+#   ggCand <- data.frame(ggCand, strSel)
+#   
+#   snpID[cpVal.use$IsNeut=="Sel"]
+#   ggCand <- data.frame(ggCand, isNeut=as.character(cpVal.use$IsNeut[match(ggCand$allele, paste("X", cpVal.use$SNPnames, sep=""))]))
+#   
+#   #ggCand$colorSNP <- as.character(ggCand$colorSNP)
+#   #ggCand$colorSNP[ggCand$allele %in% paste("V", 9900:10000, sep="")] <- "red"
+#   
+#   maxs <- NULL
+#   maxs[1] <- max(impDatList[[1]]$y)
+#   for(j in 2:length(impDatList)){
+#     maxs[j] <- max(impDatList[[j]]$y)    
+#   }
+#   
+#   p.imp <- ggplot() + geom_line(data=ggCand, aes(x=x, y=y, group=allele),
+#                                 colour=rgb(0,0,0,0.4), lwd=0.5) + 
+#     facet_grid(. ~ strSel) +
+#     labs(y="Cumulative Importance", x="Environment") +
+#     
+#     #ylim(0, max(maxs)*1.2) +
+#     theme(plot.margin = unit(c(1.25,1.25,1.25,1.25), "in")) + 
+#     theme_bw() + 
+#     theme(axis.text.x = element_text(size = 18, colour = "grey60"), 
+#           axis.title.x = element_text(size=24)) + 
+#     theme(axis.text.y = element_text(size = 16, colour = "grey60"), 
+#           axis.title.y = element_text(size=24, vjust=1)) + 
+#     theme(strip.text = element_text(size=16))
+#   
+#   ggsave(paste(getwd(), "/gradientForestResults/facetPA_cImp_", simID, ".png", sep=""), 
+#                  device="png", width = 16, height = 10, units = "in", dpi=300, p.imp)
+}, numInds=20)
 ####### END PREP DATA AND RUN GF ###############################################
 
 
@@ -456,12 +479,7 @@ gfAUC <- function(simID){
 ########## END MODEL EVALUATION ####################################################
 
 
-
 sapply(simIDs, gfAUC)
-
-
-
-
 
 quants <- quantile(modResults$envSelect, probs=probs)
 
