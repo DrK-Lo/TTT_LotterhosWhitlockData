@@ -315,6 +315,14 @@ lapply(simIDs, function(simID, numInds=c(20, 6)){
                    "_gradientforests.Cpval"), 
             row.names=F)
   
+  save(gfAllele.freq, 
+              file=paste0(getwd(), "/forester_results/", strsplit(strsplit(sim[1], ".env")[[1]][1], "forester_simfiles/")[[1]][2],
+                     "_gradientforests_cImp_alleleFreq.Rdata"))
+  
+  save(gfAllele.pa, 
+       file=paste0(getwd(), "/forester_results/", strsplit(strsplit(sim[1], ".env")[[1]][1], "forester_simfiles/")[[1]][2],
+              "_gradientforests_cImp_allelePres_Abs.Rdata"))
+  
   
 #   ######## PLOTTING ##################
 #   ##### plot cImp for MAF models #####
