@@ -309,7 +309,6 @@ lapply(simIDs, function(simID, numInds=c(20, 6)){
                          #cImp.envSelect.allelePres_Abs=gfAllele.R2.pa$envSelect,
                          r_squared.allelePres_Abs=gfAllele.R2.pa$envR2)
   
-  
   write.table(finalOut, 
             paste0(getwd(), "/forester_results/", strsplit(strsplit(sim[1], ".env")[[1]][1], "forester_simfiles/")[[1]][2],
                    "_gradientforests.Cpval"), 
