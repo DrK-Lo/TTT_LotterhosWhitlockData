@@ -122,7 +122,7 @@ cores <- 11
 # "background" environment
 # this file is currently in the old repo
 # need to check if it is to be used with new forester sims?
-bgEnv <- read.table("/Volumes/localDrobo/Projects/activeProjects/testingTheTests/fitzLab-AL_TTT_LotterhosWhitlockData/results_AdaptreeEnviFor_R90.txt") 
+#bgEnv <- read.table("/Volumes/localDrobo/Projects/activeProjects/testingTheTests/fitzLab-AL_TTT_LotterhosWhitlockData/results_AdaptreeEnviFor_R90.txt") 
 
 # sims
 # Updated to new forester sim folder 11/28/18
@@ -156,7 +156,9 @@ lapply(simIDs, function(simID, numInds=c(20, 6)){
   cpValFile <- list.files(path="/Volumes/localDrobo/Projects/activeProjects/testingTheTests/fitzLab-AL_TTT_LotterhosWhitlockData/forester_results", 
                           pattern=simID, full.names=T)
   cpValFile <- cpValFile[grep(numInds, cpValFile)]
-  cpVal <- read.table(cpValFile, header=T) #should always have 10000 loci
+  #cpValFile <- cpValFile[grep(".Cpval", cpValFile)]
+  #if(length(cpValFile)>1){cpValFile <- cpValFile[-grep("gradientforests", cpValFile)]}
+  #cpVal <- read.table(cpValFile, header=T) #should always have 10000 loci
   # select only those included (I think becuase some go to fixation...)
   cpVal.use <- subset(cpVal, SNPIncluded==TRUE)
   
@@ -310,17 +312,17 @@ lapply(simIDs, function(simID, numInds=c(20, 6)){
                          r_squared.allelePres_Abs=gfAllele.R2.pa$envR2)
   
   write.table(finalOut, 
-            paste0(getwd(), "/forester_results/", strsplit(strsplit(sim[1], ".env")[[1]][1], "forester_simfiles/")[[1]][2],
+            paste0(getwd(), "/", strsplit(strsplit(sim[1], ".env")[[1]][1], "forester_simfiles/")[[1]][2],
                    "_gradientforests.Cpval"), 
             row.names=F)
   
   save(gfAllele.freq, 
-              file=paste0(getwd(), "/forester_results/", strsplit(strsplit(sim[1], ".env")[[1]][1], "forester_simfiles/")[[1]][2],
+              file=paste0(getwd(), "/", strsplit(strsplit(sim[1], ".env")[[1]][1], "forester_simfiles/")[[1]][2],
                      "_gradientforests_cImp_alleleFreq.Rdata"))
   
-  save(gfAllele.pa, 
-       file=paste0(getwd(), "/forester_results/", strsplit(strsplit(sim[1], ".env")[[1]][1], "forester_simfiles/")[[1]][2],
-              "_gradientforests_cImp_allelePres_Abs.Rdata"))
+  #save(gfAllele.pa, 
+  #     file=paste0(getwd(), "/forester_results/", strsplit(strsplit(sim[1], ".env")[[1]][1], "forester_simfiles/")[[1]][2],
+  #            "_gradientforests_cImp_allelePres_Abs.Rdata"))
   
   
 #   ######## PLOTTING ##################
@@ -400,7 +402,7 @@ lapply(simIDs, function(simID, numInds=c(20, 6)){
 #   
 #   ggsave(paste(getwd(), "/gradientForestResults/facetPA_cImp_", simID, ".png", sep=""), 
 #                  device="png", width = 16, height = 10, units = "in", dpi=300, p.imp)
-}, numInds=20)
+}, numInds=6)
 ####### END PREP DATA AND RUN GF ###############################################
 
 
