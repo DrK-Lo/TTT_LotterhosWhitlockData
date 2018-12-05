@@ -97,7 +97,7 @@ simIDs <- simIDs[-grep(".txt", simIDs)]
 simIDs <- simIDs[-grep("README.md", simIDs)]
 
 # for testing lapply function below
-# simID <- simIDs[1]
+# simID <- simIDs[3]
 # numInds <- 20
 
 # lapply through each simulation
@@ -117,7 +117,7 @@ lapply(simIDs, function(simID, numInds=c(20, 6)){
   # read in cpVal table
   cpValFile <- list.files(path="/Volumes/localDrobo/Projects/activeProjects/testingTheTests/fitzLab-AL_TTT_LotterhosWhitlockData/forester_results", 
                           pattern=simID, full.names=T)
-  cpValFile <- cpValFile[grep(numInds, cpValFile)]
+  cpValFile <- cpValFile[grep(paste0("NumInd=", numInds), cpValFile)]
   #cpValFile <- cpValFile[grep(".Cpval", cpValFile)]
   if(length(cpValFile)>1){cpValFile <- cpValFile[-grep("gradientforests", cpValFile)]}
   cpVal <- read.table(cpValFile, header=T) #should always have 10000 loci
@@ -265,7 +265,7 @@ lapply(simIDs, function(simID, numInds=c(20, 6)){
   # save(gfAllele.freq, 
   #             file=paste0(getwd(), "/", strsplit(strsplit(sim[1], ".env")[[1]][1], "forester_simfiles/")[[1]][2],
   #                    "_gradientforests_cImp_alleleFreq.Rdata"))
-}, numInds=20)
+}, numInds=6)
   
   
 ####### END PREP DATA AND RUN GF ###############################################
