@@ -79,11 +79,11 @@ gfR2tab <- function(gfMods.list, alFreqs){
 #####
 ################################################################################
 
-zoot <- TRUE
+zoot <- c(FALSE, TRUE)[1]
 if(zoot){
   path <- "/pool/home/mfitzpatrick/Projects/activeProjects/TTT_LotterhosWhitlockData/"
 } else {
-  path <- "/Volumes/localDrobo/Projects/activeProjects/testingTheTests/fitzLab-AL_TTT_LotterhosWhitlockData/"
+  path <- "/Volumes/localDrobo/Projects/activeProjects/testingTheTests/TTT_LotterhosWhitlockData/"
 }
 
 ####### START PREP DATA AND RUN GF #############################################
@@ -412,9 +412,9 @@ mclapply(simIDs, function(simID, numInds=c(20, 6)){
 
 
 ####### PLOT GF TURNOVER / CUMULATIVE IMPORTANCE FUNCTIONS #####################
-simFiles <- list.files(path=paste0(path, "forester_simfiles"), full.names=T)
+simFiles <- list.files(path=paste0(path, "forester_simfiles/"), full.names=T)
 
-impData <- list.files(pattern=".Rdata",
+impData <- list.files(pattern="alleleFreq.Rdata",
                       path=getwd(),
                       full.names=T,
                       recursive=T)
@@ -427,7 +427,8 @@ for(i in 1:length(impData)){
   sim <- simFiles[grep(plotTitle, simFiles)]
 
   # read in cpVal table
-  cpValFile <- list.files(path=paste0(path, "forester_results"), pattern=plotTitle, full.names=T)
+  cpValFile <- list.files(path=paste0(path, "forester_results"), 
+                          pattern=plotTitle, full.names=T)
   cpValFile <- cpValFile[grep(".Cpval", cpValFile)]
   if(length(cpValFile)>1){cpValFile <- cpValFile[-grep("gradientforests", cpValFile)]}
   if(length(cpValFile)>1){cpValFile <- cpValFile[-grep("GDM", cpValFile)]}
@@ -458,12 +459,30 @@ for(i in 1:length(impData)){
     maxs[j] <- max(impDatList[[j]]$y)
   }
   
+  impDataMAF <- list.files(pattern=".Rdata",
+                        path=getwd(),
+                        full.names=T,
+                        recursive=T)
+  impDataMAF <- impDataMAF[grep(plotTitle, impDataMAF)]
+  load(impDataMAF[grep("_All", impDataMAF)])
+  load(impDataMAF[grep("Neutral", impDataMAF)])
+  load(impDataMAF[grep("Selected", impDataMAF)])
+  
+  #cImpMAF <- data.frame(allele="All", x=cImpMAF$x, y=cImpMAF$y, r2=1,
+  #                      strSel="A")
+  
+  #ggCand <- rbind(ggCand, cImpMAF)
+  
   p.imp <- ggplot() + geom_line(data=ggCand, aes(x=x, y=y, group=allele),
                                 colour=rgb(0,0,0,0.4), lwd=0.5) +
     facet_grid(. ~ strSel) +
     labs(y="Cumulative Importance", x="Environment") +
-    geom_line(data=cImpMAF, aes(x=x, y=y),
+    geom_line(data=cImpMAF.neut, aes(x=x, y=y),
+              colour=rgb(0,0,1, 0.75), lwd=1) +
+    geom_line(data=cImpMAF.sel, aes(x=x, y=y),
               colour=rgb(1,0,0, 0.75), lwd=1) +
+    geom_line(data=cImpMAF, aes(x=x, y=y),
+              colour=rgb(0,0,0, 0.75), lwd=1) +
     theme(plot.margin = unit(c(1.25,1.25,1.25,1.25), "in")) +
     theme_bw() +
     theme(axis.text.x = element_text(size = 18, colour = "grey60"),
@@ -474,7 +493,7 @@ for(i in 1:length(impData)){
     ggtitle(plotTitle) +
     theme(plot.title = element_text(size=14, face="bold.italic"))
 
-  pngName <- paste0(getwd(), "/", plotTitle, "_gradientforests_cImp_alleleFreq2.png")
+  pngName <- paste0(getwd(), "/forester_results/", plotTitle, "_gradientforests_cImp_alleleFreq.png")
   
   ggsave(pngName, device="png", width = 16, height = 10, units = "in", dpi=300, p.imp)
 }
