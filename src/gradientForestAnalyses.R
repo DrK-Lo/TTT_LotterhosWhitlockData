@@ -79,6 +79,12 @@ gfR2tab <- function(gfMods.list, alFreqs){
 #####
 ################################################################################
 
+zoot <- TRUE
+if(zoot){
+  path <- "/pool/home/mfitzpatrick/Projects/activeProjects/TTT_LotterhosWhitlockData/"
+} else {
+  path <- "/Volumes/localDrobo/Projects/activeProjects/testingTheTests/fitzLab-AL_TTT_LotterhosWhitlockData/"
+}
 
 ####### START PREP DATA AND RUN GF #############################################
 # Load and prep data (env, allelic) ---------------------------------------
@@ -92,8 +98,7 @@ cores <- 11
 
 # sims
 # Updated to new forester sim folder 11/28/18
-simFiles <- list.files(path="/Volumes/localDrobo/Projects/activeProjects/testingTheTests/fitzLab-AL_TTT_LotterhosWhitlockData/forester_simfiles",
-                       full.names=T)
+simFiles <- list.files(path=paste0(path, "forester_simfiles"), full.names=T)
 simIDs <- unique(sapply(strsplit(sapply(strsplit(simFiles, "_NumPops"), function(x){
   x[1]}), "/forester_simfiles/", fixed=T), function(x){
     x[2]}))
@@ -119,8 +124,7 @@ lapply(simIDs, function(simID, numInds=c(20, 6)){
   
   # Updated to new forester sim folder 11/28/18
   # read in cpVal table
-  cpValFile <- list.files(path="/Volumes/localDrobo/Projects/activeProjects/testingTheTests/fitzLab-AL_TTT_LotterhosWhitlockData/forester_results", 
-                          pattern=simID, full.names=T)
+  cpValFile <- list.files(path=paste0(path, "forester_results"), pattern=simID, full.names=T)
   cpValFile <- cpValFile[grep(numInds, cpValFile)]
   cpValFile <- cpValFile[grep(".Cpval", cpValFile)]
   if(length(cpValFile)>1){cpValFile <- cpValFile[-grep("gradientforests", cpValFile)]}
@@ -292,11 +296,123 @@ lapply(simIDs, function(simID, numInds=c(20, 6)){
   #            "_gradientforests_cImp_allelePres_Abs.Rdata"))
 }, numInds=6)
 ################################################################################
+
+# GF on all alleles simultaneously ---------------------------------------
+# sims
+# Updated to new forester sim folder 11/28/18
+simFiles <- list.files(path=paste0(path, "forester_simfiles"), full.names=T)
+simIDs <- unique(sapply(strsplit(sapply(strsplit(simFiles, "_NumPops"), function(x){
+  x[1]}), "/forester_simfiles/", fixed=T), function(x){
+    x[2]}))
+
+simIDs <- simIDs[-grep(".txt", simIDs)]
+simIDs <- simIDs[-grep("README.md", simIDs)]
+
+# for testing lapply function below
+#simID <- simIDs[1]
+
+# mclapply through each simulation
+mclapply(simIDs, function(simID, numInds=c(20, 6)){
+  # x-y and environment
+  sim <- simFiles[grep(simID, simFiles)]
   
+  # simulations with either 20 or 6 individuals
+  # select using numInds argument
+  sim <- sim[grep(paste0("NumInd=", numInds), sim)]
   
+  # Updated to new forester sim folder 11/28/18
+  # read in cpVal table
+  cpValFile <- list.files(path=paste0(path, "forester_results"), pattern=simID, full.names=T)
+  cpValFile <- cpValFile[grep(paste0("NumInd=", numInds), cpValFile)]
+  cpValFile <- cpValFile[grep(".Cpval", cpValFile)]
+  if(length(cpValFile)>1){cpValFile <- cpValFile[-grep("gradientforests", cpValFile)]}
+  if(length(cpValFile)>1){cpValFile <- cpValFile[-grep("GDM", cpValFile)]}
+  cpVal <- read.table(cpValFile, header=T) #should always have 10000 loci
+  # select only those included (I think because some go to fixation...)
+  cpVal.use <- subset(cpVal, SNPIncluded==TRUE)
+  
+  # env gradient(s)
+  envSelect <- read.table(sim[grep("env", sim)])
+  names(envSelect) <- "envSelect"
+  
+  # allele data
+  # columns = loci
+  # rows = total # of individuals (#populations x #inds sampled)
+  allelic <- fread(sim[grep("lfmm", sim)], header=F, data.table=F)
+  #allelic <- allelic[,cpVal.use$SNPIncluded]
+  
+  # create character name for SNPs
+  snpID <- paste0("S", cpVal.use$SNPnames) #paste("S", row.names(cpVal.use), sep="")
+  names(allelic) <- snpID
+  
+  # data stats - used for indexing, etc
+  popSize <- nrow(allelic)/nrow(unique(envSelect))#nrow(bgEnv)
+  numPops <- nrow(unique(envSelect))
+  
+  popID <- sort(rep(1:numPops, popSize))
+  
+  # build data tables for individuals & populations
+  datInd <- data.frame(popID=popID, envSelect=envSelect, allelic)
+  
+  # aggregate to population-level allele freqs
+  datPop <- aggregate(. ~ popID+envSelect, data=datInd, FUN=function(x, popSize){
+    sum(x)/popSize}, popSize=popSize)
+  alFreq <- datPop[,-c(1, 2)] #"popID", "envSelect"
+  
+  envPop <- data.frame(envSelect = datPop$envSelect)
+  
+  ##############################################
+  # Chunk to fit GF models to minor allele frequencies 
+  # all loci
+  gfMAF <- gradientForest(data=data.frame(envPop, alFreq),
+                              predictor.vars=colnames(envPop), 
+                              response.vars=colnames(alFreq), 
+                              corr.threshold=0.5, 
+                              ntree=500, 
+                              trace=T)
+  cImpMAF <- cumimp(gfMAF, "envSelect", type="Overall")
+  cImpMAF <- data.frame(x=cImpMAF$x, y=cImpMAF$y)
+  save(cImpMAF, 
+       file=paste0(getwd(), "/", strsplit(strsplit(sim[1], ".env")[[1]][1], "forester_simfiles/")[[1]][2],
+                   "_gradientforests_cImp_alleleFreq_overall_All_Loci.Rdata"))
+  
+  # selected loci
+  seld <- which(names(alFreq) %in% paste0("S", cpVal$SNPnames[which(cpVal$s_high>0)]))
+  gfMAF.sel <- gradientForest(data=data.frame(envPop, alFreq[,seld]),
+                          predictor.vars=colnames(envPop), 
+                          response.vars=colnames(alFreq)[seld], 
+                          corr.threshold=0.5, 
+                          ntree=500, 
+                          trace=T)
+  cImpMAF.sel <- cumimp(gfMAF.sel, "envSelect", type="Overall")
+  cImpMAF.sel <- data.frame(x=cImpMAF.sel$x, y=cImpMAF.sel$y)
+  save(cImpMAF.sel, 
+       file=paste0(getwd(), "/", strsplit(strsplit(sim[1], ".env")[[1]][1], "forester_simfiles/")[[1]][2],
+                   "_gradientforests_cImp_alleleFreq_overallSelected.Rdata"))
+  
+  # neutral loci
+  neut <- which(names(alFreq) %in% paste0("S", cpVal$SNPnames[which(cpVal$s_high==0)]))
+  gfMAF.neut <- gradientForest(data=data.frame(envPop, alFreq[,neut]),
+                              predictor.vars=colnames(envPop), 
+                              response.vars=colnames(alFreq)[neut], 
+                              corr.threshold=0.5, 
+                              ntree=500, 
+                              trace=T)
+  cImpMAF.neut <- cumimp(gfMAF.neut, "envSelect", type="Overall")
+  cImpMAF.neut <- data.frame(x=cImpMAF.neut$x, y=cImpMAF.neut$y)
+  save(cImpMAF.neut, 
+       file=paste0(getwd(), "/", strsplit(strsplit(sim[1], ".env")[[1]][1], "forester_simfiles/")[[1]][2],
+                   "_gradientforests_cImp_alleleFreq_overallNeutral.Rdata"))
+  
+  #gfMAF.comb <- combinedGradientForest(selected=gfMAF.neut, neutral=gfMAF.neut, method=2)
+  ##############################################
+  
+}, numInds=6, mc.cores = 18, mc.cleanup = T)
+################################################################################
+
+
 ####### PLOT GF TURNOVER / CUMULATIVE IMPORTANCE FUNCTIONS #####################
-simFiles <- list.files(path="/Volumes/localDrobo/Projects/activeProjects/testingTheTests/fitzLab-AL_TTT_LotterhosWhitlockData/forester_simfiles",
-                       full.names=T)
+simFiles <- list.files(path=paste0(path, "forester_simfiles"), full.names=T)
 
 impData <- list.files(pattern=".Rdata",
                       path=getwd(),
@@ -311,8 +427,7 @@ for(i in 1:length(impData)){
   sim <- simFiles[grep(plotTitle, simFiles)]
 
   # read in cpVal table
-  cpValFile <- list.files(path="/Volumes/localDrobo/Projects/activeProjects/testingTheTests/fitzLab-AL_TTT_LotterhosWhitlockData/forester_results", 
-                          pattern=plotTitle, full.names=T)
+  cpValFile <- list.files(path=paste0(path, "forester_results"), pattern=plotTitle, full.names=T)
   cpValFile <- cpValFile[grep(".Cpval", cpValFile)]
   if(length(cpValFile)>1){cpValFile <- cpValFile[-grep("gradientforests", cpValFile)]}
   if(length(cpValFile)>1){cpValFile <- cpValFile[-grep("GDM", cpValFile)]}
@@ -347,6 +462,8 @@ for(i in 1:length(impData)){
                                 colour=rgb(0,0,0,0.4), lwd=0.5) +
     facet_grid(. ~ strSel) +
     labs(y="Cumulative Importance", x="Environment") +
+    geom_line(data=cImpMAF, aes(x=x, y=y),
+              colour=rgb(1,0,0, 0.75), lwd=1) +
     theme(plot.margin = unit(c(1.25,1.25,1.25,1.25), "in")) +
     theme_bw() +
     theme(axis.text.x = element_text(size = 18, colour = "grey60"),
@@ -355,9 +472,9 @@ for(i in 1:length(impData)){
           axis.title.y = element_text(size=24, vjust=1)) +
     theme(strip.text = element_text(size=16)) +
     ggtitle(plotTitle) +
-    theme(plot.title = element_text(size=14, face="bold.italic")) 
-  
-  pngName <- paste0(getwd(), "/", plotTitle, "_gradientforests_cImp_alleleFreq.png")
+    theme(plot.title = element_text(size=14, face="bold.italic"))
+
+  pngName <- paste0(getwd(), "/", plotTitle, "_gradientforests_cImp_alleleFreq2.png")
   
   ggsave(pngName, device="png", width = 16, height = 10, units = "in", dpi=300, p.imp)
 }
