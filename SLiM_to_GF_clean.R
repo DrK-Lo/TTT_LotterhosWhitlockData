@@ -140,6 +140,26 @@ gfR2tab <- function(gfMods.list, alFreqs){
 # GF is fit to each SNP individually to 
 # ease computational / memory burden
 
+##### added by MCF, running all loci in on model ##########
+# I add a random variables in hopes of getting some of the 
+# gf plotting functions to work (which seem to fail when 
+# the model uses only one variable
+envRand <- runif(nrow(envPop), -1, 1)
+env <- data.frame(envPop, envRand)
+gfMod <- gradientForest(data=data.frame(env, alFreq),
+                        predictor.vars=colnames(env),
+                        response.vars=colnames(alFreq),
+                        corr.threshold=0.5, 
+                        ntree=500, 
+                        trace=T)
+
+
+plot(gfMod, plot.type="C", common.scale=T)
+plot(gfMod, plot.type="S", common.scale=T)
+ci.o <- cumimp(gfMod, predictor="envSelect", type="Overall")
+#plot(ci.o$x, ci.o$y, type="l")
+##### added by MCF, running all loci in on model ##########
+
 cl <- makeCluster(cores)
 registerDoParallel(cl)
 
@@ -228,8 +248,8 @@ p.imp
 ##############################################
 # Chunk to fit GF models to minor allele frequencies 
 # All loci
-cl <- makeCluster(cores)
-registerDoParallel(cl)
+#cl <- makeCluster(cores)
+#registerDoParallel(cl)
 
 gfMAF <- gradientForest(data=data.frame(envPop, alFreq),
                         predictor.vars=colnames(envPop), 
@@ -241,7 +261,7 @@ gfMAF <- gradientForest(data=data.frame(envPop, alFreq),
 cImpMAF <- cumimp(gfMAF, "envSelect", type="Overall")
 cImpMAF <- data.frame(x=cImpMAF$x, y=cImpMAF$y)
 
-stopCluster(cl)
+#stopCluster(cl)
 
 cImpMAF <- data.frame(allele="All", x=cImpMAF$x, y=cImpMAF$y, r2=1, strSel="A")
 
