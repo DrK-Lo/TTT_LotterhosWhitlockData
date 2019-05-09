@@ -99,6 +99,8 @@ alFreq<-alFreq[,-1002] #Strip off location column
 envPop<-data.frame(fitt[201:300,"Gen1000"])
 names(envPop) <- "envSelect" #Specify column heading for the environmental data
 
+envPop.shift <- data.frame(fitt[201:300,"Gen1300"])
+names(envPop.shift) <- "envSelect" #Specify column heading for the environmental data
 
 ##############################################
 #Set uf GF functions and run data
@@ -134,32 +136,34 @@ gfR2tab <- function(gfMods.list, alFreqs){
   R2Tab <- rbind(R2Tab, noGF)
   return(R2Tab[order(R2Tab$SNPnames),])}
 
-##############################################
-# Chunk to fit GF models to minor allele frequencies at the level of
-# populations
-# GF is fit to each SNP individually to 
-# ease computational / memory burden
-
 ##### added by MCF, running all loci in on model ##########
-# I add a random variables in hopes of getting some of the 
+# I tried adding a random variable in hopes of getting some of the 
 # gf plotting functions to work (which seem to fail when 
 # the model uses only one variable
-envRand <- runif(nrow(envPop), -1, 1)
-env <- data.frame(envPop, envRand)
+#envRand <- runif(nrow(envPop), -1, 1)
+env <- envPop#data.frame(envPop, envRand)
 gfMod <- gradientForest(data=data.frame(env, alFreq),
                         predictor.vars=colnames(env),
                         response.vars=colnames(alFreq),
                         corr.threshold=0.5, 
                         ntree=500, 
                         trace=T)
+# calculate genomic offset
+# note that I am doing this for the avearge across all alleles since 
+# GF was fit to all alleles simultaneously
+# The more correct way is to calculate offset for adaptive alleles only,
+# either individually or for a model fit to just those alleles.
+gfTrans1 <- predict(gfMod, envPop)
+gfTrans2 <- predict(gfMod, envPop.shift)
 
+offset <- gfTrans2-gfTrans1
+##### added by MCF, running all loci in one model ##########
 
-plot(gfMod, plot.type="C", common.scale=T)
-plot(gfMod, plot.type="S", common.scale=T)
-ci.o <- cumimp(gfMod, predictor="envSelect", type="Overall")
-#plot(ci.o$x, ci.o$y, type="l")
-##### added by MCF, running all loci in on model ##########
-
+##############################################
+# Chunk to fit GF models to minor allele frequencies at the level of
+# populations
+# GF is fit to each SNP individually to 
+# ease computational / memory burden
 cl <- makeCluster(cores)
 registerDoParallel(cl)
 
@@ -288,3 +292,55 @@ p.imp <- ggplot() + geom_line(data=ggCand, aes(x=x, y=y, group=allele),
   theme(plot.title = element_text(size=14, face="bold.italic"))
 
 p.imp
+
+
+######################################
+#Extrapolation
+#ggCand1000 = cImpMAF.sel from before environmental shift
+#ggCand1300 = cImpMAF.sel after environmental shift
+#x = environmental variable
+#y = cumulative importance
+#ymin + (y-ymin)*(x-xmin)/(xmax-xmin) = 0
+#y = ymin - ymin*(xmax-xmin)/(x-xmin)
+#####################################
+
+#This is an extrapolation for the initial CImp of the smallest simulated environmental value (see attached figure)
+x1 <- -5
+y1 <- min(ggCand1000$y)-((min(ggCand1000$y)*(max(ggCand1000$x)-min(ggCand1000$x)))/(x1-min(ggCand1000$x)))
+
+#This is an extrapolation of the three largest simulated environmental values that extend beyond the CImp plot (see attached figure)
+x <-c(5:7)
+y <- min(ggCand1000$y)-((min(ggCand1000$y)*(max(ggCand1000$x)-min(ggCand1000$x)))/(x-min(ggCand1000$x)))
+y2<-max(ggCand1000$y)+y
+
+#Save CImp values for corresponding X-locations before & after environmental shift
+(ggCand_n1_pre<-ggCand1000[1,c("x","y")])
+(ggCand_n1_post<-ggCand1300[1,c("x","y")])
+(ggCand_n2_pre<-ggCand1000[2,c("x","y")])
+(ggCand_n2_post<-ggCand1300[2,c("x","y")])
+(ggCand_n3_pre<-ggCand1000[3,c("x","y")])
+(ggCand_n3_post<-ggCand1300[3,c("x","y")])
+(ggCand_n4_pre<-ggCand1000[4,c("x","y")])
+(ggCand_n4_post<-ggCand1300[4,c("x","y")])
+(ggCand_n5_pre<-ggCand1000[5,c("x","y")])
+(ggCand_n5_post<-ggCand1300[5,c("x","y")])
+(ggCand_n6_pre<-ggCand1000[6,c("x","y")])
+(ggCand_n6_post<-ggCand1300[6,c("x","y")])
+(ggCand_n7_pre<-ggCand1000[7,c("x","y")])
+(ggCand_n7_post<-ggCand1300[7,c("x","y")])
+(ggCand_n8_pre<-ggCand1000[8,c("x","y")])
+(ggCand_n8_post<-ggCand1300[8,c("x","y")])
+(ggCand_n9_pre<-ggCand1000[9,c("x","y")])
+(ggCand_n9_post<-ggCand1300[9,c("x","y")])
+
+#Difference in cumulative importance
+(DcumImp<-data.frame(rbind(ggCand_n3_pre$y-y1,
+                           ggCand1000$y[4]-ggCand_n1_pre$y,
+                           ggCand1000$y[5]-ggCand_n2_pre$y,
+                           ggCand1000$y[6]-ggCand_n3_pre$y,
+                           ggCand1000$y[7]-ggCand_n4_pre$y,
+                           ggCand1000$y[8]-ggCand_n5_pre$y,
+                           ggCand1000$y[9]-ggCand_n6_pre$y,
+                           y2[1]-ggCand_n7_pre$y,
+                           y2[2]-ggCand_n8_pre$y,
+                           y2[3]-ggCand_n9_pre$y)))
