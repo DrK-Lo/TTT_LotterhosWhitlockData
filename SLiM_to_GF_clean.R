@@ -136,7 +136,7 @@ gfR2tab <- function(gfMods.list, alFreqs){
   R2Tab <- rbind(R2Tab, noGF)
   return(R2Tab[order(R2Tab$SNPnames),])}
 
-##### added by MCF, running all loci in on model ##########
+##### added by MCF, running all loci in one model ##########
 # I tried adding a random variable in hopes of getting some of the 
 # gf plotting functions to work (which seem to fail when 
 # the model uses only one variable
@@ -149,7 +149,7 @@ gfMod <- gradientForest(data=data.frame(env, alFreq),
                         ntree=500, 
                         trace=T)
 # calculate genomic offset
-# note that I am doing this for the avearge across all alleles since 
+# note that I am doing this for the average across all alleles since 
 # GF was fit to all alleles simultaneously
 # The more correct way is to calculate offset for adaptive alleles only,
 # either individually or for a model fit to just those alleles.
